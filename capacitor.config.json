@@ -1,0 +1,13 @@
+{
+  "appId": "com.letterformyself.app",
+  "appName": "LetterForMyself",
+  "webDir": "dist",
+  "backgroundColor": "#F2ECE1",
+  "android": {
+    "backgroundColor": "#F2ECE1",
+    "allowMixedContent": true
+  },
+  "server": {
+    "androidScheme": "https"
+  }
+}
