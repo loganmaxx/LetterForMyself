@@ -15,6 +15,7 @@ import { JournalEntry, Language, MoodType, PaperTheme, TemplateType } from '../.
 import { ALL_EMOTIONS } from '../../constants/emotions';
 import { PALETTE, PAPER_STYLES, FONTS } from '../../constants/theme';
 import { HapticsService } from '../../services/hapticsService';
+import { PaperBackground } from '../common/PaperBackground';
 
 interface JournalStudioProps {
   language: Language;
@@ -42,8 +43,9 @@ export const JournalStudio: React.FC<JournalStudioProps> = ({
   const [template, setTemplate] = useState<TemplateType>(editingEntry?.template || initialTemplate);
   const [mood, setMood] = useState<MoodType>(editingEntry?.mood || 'peaceful');
   const [paperTheme, setPaperTheme] = useState<PaperTheme>(
-    editingEntry?.paperTheme || (isNight ? 'midnight' : 'parchment')
+    editingEntry?.paperTheme || (isNight ? 'midnight' : 'lined')
   );
+  const [showPaperDrawer, setShowPaperDrawer] = useState(false);
   const [isFavorite, setIsFavorite] = useState(editingEntry?.isFavorite || false);
   const [draftSaved, setDraftSaved] = useState(false);
 
@@ -115,6 +117,33 @@ export const JournalStudio: React.FC<JournalStudioProps> = ({
         </View>
 
         <View style={styles.topRight}>
+          {/* Toggle Paper Themes */}
+          <TouchableOpacity
+            style={[
+              styles.paperThemeBtn,
+              showPaperDrawer && styles.paperThemeBtnActive,
+              isNight && { backgroundColor: showPaperDrawer ? PALETTE.botanicalHeader : PALETTE.nightCardSecondary },
+            ]}
+            onPress={() => {
+              HapticsService.light();
+              setShowPaperDrawer(!showPaperDrawer);
+            }}
+          >
+            <Palette
+              size={14}
+              color={showPaperDrawer ? '#FFFFFF' : isNight ? PALETTE.nightInk : PALETTE.ink}
+            />
+            <Text
+              style={[
+                styles.paperThemeBtnText,
+                showPaperDrawer && { color: '#FFFFFF' },
+                isNight && !showPaperDrawer && { color: PALETTE.nightInk },
+              ]}
+            >
+              {language === 'id' ? 'Kertas' : 'Paper'}
+            </Text>
+          </TouchableOpacity>
+
           <TouchableOpacity
             style={styles.iconBtn}
             onPress={() => {
@@ -230,6 +259,52 @@ export const JournalStudio: React.FC<JournalStudioProps> = ({
           </ScrollView>
         </View>
 
+        {/* Paper Theme Drawer */}
+        {showPaperDrawer && (
+          <View style={[styles.paperDrawer, isNight && styles.nightPaperDrawer]}>
+            <Text style={[styles.drawerSubtitle, isNight && { color: PALETTE.nightInkMuted }]}>
+              {language === 'id' ? 'PILIH TEMA KERTAS' : 'CHOOSE PAPER THEME'}
+            </Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.drawerRow}>
+              {[
+                { id: 'lined' as PaperTheme, icon: '📝', label: language === 'id' ? 'Bergaris' : 'Lined' },
+                { id: 'parchment' as PaperTheme, icon: '📜', label: language === 'id' ? 'Perkamen' : 'Parchment' },
+                { id: 'dotgrid' as PaperTheme, icon: '⠇', label: 'Dot Grid' },
+                { id: 'botanical' as PaperTheme, icon: '🌿', label: 'Botanical' },
+                { id: 'terracotta' as PaperTheme, icon: '🏺', label: 'Terracotta' },
+                { id: 'midnight' as PaperTheme, icon: '🌙', label: 'Midnight' },
+              ].map((p) => {
+                const isSelected = paperTheme === p.id;
+                return (
+                  <TouchableOpacity
+                    key={p.id}
+                    style={[
+                      styles.paperThemePill,
+                      isSelected && styles.paperThemePillActive,
+                      isNight && { backgroundColor: isSelected ? PALETTE.botanicalHeader : PALETTE.nightCardSecondary },
+                    ]}
+                    onPress={() => {
+                      HapticsService.selection();
+                      setPaperTheme(p.id);
+                    }}
+                  >
+                    <Text style={styles.paperThemePillIcon}>{p.icon}</Text>
+                    <Text
+                      style={[
+                        styles.paperThemePillText,
+                        isSelected && styles.paperThemePillTextActive,
+                        isNight && !isSelected && { color: PALETTE.nightInkSecondary },
+                      ]}
+                    >
+                      {p.label}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </ScrollView>
+          </View>
+        )}
+
         {/* 4. Tactile Editorial Paper Sheet */}
         <View
           style={[
@@ -240,6 +315,9 @@ export const JournalStudio: React.FC<JournalStudioProps> = ({
             },
           ]}
         >
+          {/* Authentic Ruled Lines or Dot Grid Background Texture */}
+          <PaperBackground theme={paperTheme} isNight={isNight} />
+
           {initialPrompt ? (
             <View style={styles.promptBanner}>
               <Text style={styles.promptBannerText}>{initialPrompt}</Text>
@@ -258,9 +336,15 @@ export const JournalStudio: React.FC<JournalStudioProps> = ({
 
           <View style={styles.divider} />
 
-          {/* Content Multi-line Input in Editorial Serif */}
+          {/* Content Multi-line Input in Editorial Serif with Ruled Line Spacing */}
           <TextInput
-            style={[styles.contentInput, { color: isNight ? PALETTE.nightInk : currentPaper.text }]}
+            style={[
+              styles.contentInput,
+              {
+                color: isNight ? PALETTE.nightInk : currentPaper.text,
+                lineHeight: paperTheme === 'lined' || paperTheme === 'terracotta' ? 32 : 24,
+              },
+            ]}
             placeholder={
               language === 'id'
                 ? 'Tuliskan apa pun yang sedang kamu rasakan tanpa perlu dihakimi...'
@@ -360,6 +444,23 @@ const styles = StyleSheet.create({
   },
   iconBtn: {
     padding: 6,
+  },
+  paperThemeBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: PALETTE.sand,
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    borderRadius: 14,
+  },
+  paperThemeBtnActive: {
+    backgroundColor: PALETTE.botanicalHeader,
+  },
+  paperThemeBtnText: {
+    fontSize: 11,
+    fontFamily: FONTS.sansSemiBold,
+    color: PALETTE.ink,
   },
   saveBtn: {
     flexDirection: 'row',
@@ -468,6 +569,54 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.sansBold,
     color: PALETTE.botanicalHeader,
   },
+  paperDrawer: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 18,
+    padding: 12,
+    marginBottom: 14,
+    borderWidth: 1,
+    borderColor: PALETTE.border,
+  },
+  nightPaperDrawer: {
+    backgroundColor: PALETTE.nightCard,
+    borderColor: PALETTE.nightBorder,
+  },
+  drawerSubtitle: {
+    fontSize: 9,
+    fontFamily: FONTS.sansBold,
+    color: PALETTE.inkMuted,
+    letterSpacing: 0.8,
+    marginBottom: 8,
+  },
+  drawerRow: {
+    gap: 8,
+  },
+  paperThemePill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: '#F7F4EE',
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    borderRadius: 14,
+  },
+  paperThemePillActive: {
+    backgroundColor: '#DCE8E2',
+    borderWidth: 1.5,
+    borderColor: PALETTE.botanicalHeader,
+  },
+  paperThemePillIcon: {
+    fontSize: 12,
+  },
+  paperThemePillText: {
+    fontSize: 11,
+    fontFamily: FONTS.sansMedium,
+    color: PALETTE.inkSecondary,
+  },
+  paperThemePillTextActive: {
+    fontFamily: FONTS.sansBold,
+    color: PALETTE.botanicalHeader,
+  },
   paperCanvas: {
     borderRadius: 22,
     borderWidth: 1,
@@ -477,6 +626,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.04,
     shadowRadius: 8,
     elevation: 2,
+    overflow: 'hidden',
   },
   promptBanner: {
     backgroundColor: '#FDF3EE',

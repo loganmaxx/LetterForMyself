@@ -13,6 +13,7 @@ import { JournalEntry, Language } from '../../types';
 import { ALL_EMOTIONS } from '../../constants/emotions';
 import { PALETTE, PAPER_STYLES, FONTS } from '../../constants/theme';
 import { HapticsService } from '../../services/hapticsService';
+import { PaperBackground } from '../common/PaperBackground';
 
 interface JournalReaderProps {
   language: Language;
@@ -111,6 +112,9 @@ export const JournalReader: React.FC<JournalReaderProps> = ({
             },
           ]}
         >
+          {/* Authentic Ruled Lines or Dot Grid Background Texture */}
+          <PaperBackground theme={entry.paperTheme} isNight={isNight} />
+
           <View style={styles.metaRow}>
             <Text style={styles.dateText}>{dateStr}</Text>
             {emotion && (
@@ -146,7 +150,15 @@ export const JournalReader: React.FC<JournalReaderProps> = ({
           )}
 
           {/* Main Body in Newsreader Regular */}
-          <Text style={[styles.body, { color: isNight ? PALETTE.nightInk : paper.text }]}>
+          <Text
+            style={[
+              styles.body,
+              {
+                color: isNight ? PALETTE.nightInk : paper.text,
+                lineHeight: entry.paperTheme === 'lined' || entry.paperTheme === 'terracotta' ? 32 : 26,
+              },
+            ]}
+          >
             {entry.content}
           </Text>
 
@@ -275,6 +287,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.05,
     shadowRadius: 8,
     elevation: 2,
+    overflow: 'hidden',
   },
   metaRow: {
     flexDirection: 'row',
