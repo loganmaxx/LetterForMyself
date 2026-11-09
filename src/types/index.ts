@@ -11,26 +11,26 @@ export type PaperTheme =
 export type FontStyle = 'serif' | 'sans' | 'handwriting';
 
 export type MoodType =
-  | 'radiant'
-  | 'excited'
-  | 'grateful'
-  | 'loved'
-  | 'hopeful'
-  | 'confident'
+  | 'happy'
   | 'peaceful'
-  | 'grounded'
+  | 'calm'
+  | 'grateful'
+  | 'confident'
+  | 'energetic'
+  | 'excited'
+  | 'hopeful'
+  | 'content'
   | 'relaxed'
   | 'safe'
-  | 'content'
-  | 'sleepy'
-  | 'melancholy'
-  | 'cry'
-  | 'lonely'
+  | 'sad'
   | 'anxious'
-  | 'overwhelmed'
+  | 'sleepy'
   | 'stressed'
+  | 'overwhelmed'
+  | 'lonely'
   | 'frustrated'
-  | 'confused';
+  | 'angry'
+  | 'bored';
 
 export type TemplateType =
   | 'freeflow'
@@ -44,12 +44,12 @@ export type TemplateType =
 export interface CBTData {
   situation: string;
   automaticThought: string;
-  initialBelief: number; // 0 - 100
-  distortions: string[]; // distortion IDs
+  initialBelief: number;
+  distortions: string[];
   evidenceFor: string;
   evidenceAgainst: string;
   balancedReframe: string;
-  afterBelief: number; // 0 - 100
+  afterBelief: number;
 }
 
 export interface UnloadData {
@@ -62,28 +62,23 @@ export interface JournalEntry {
   id: string;
   title: string;
   content: string;
-  createdAt: string; // ISO date string
-  updatedAt: string; // ISO date string
+  createdAt: string;
+  updatedAt: string;
   template: TemplateType;
   paperTheme: PaperTheme;
   fontStyle: FontStyle;
   mood: MoodType;
   emotions: string[];
-  bodySensations: string[];
-  energyLevel: number; // 1 - 5
-  stickers: string[]; // sticker IDs
+  energyLevel: number;
   tags: string[];
   promptUsed?: string;
   affirmationNote?: string;
   gratitudeList?: string[];
   cbtData?: CBTData;
   unloadData?: UnloadData;
-  voiceUsed?: boolean;
   isFavorite: boolean;
-  // Polaroid Memory Photo
   photoUrl?: string;
   photoCaption?: string;
-  // For Time-Capsule Letters
   unlockDate?: string;
   isUnlocked?: boolean;
   reflectionAfterOpening?: string;
@@ -94,9 +89,6 @@ export interface MoodCheckIn {
   timestamp: string;
   mood: MoodType;
   emotions: string[];
-  bodySensations: string[];
-  energyLevel: number; // 1 - 5
-  sleepQuality: number; // 1 - 5
   note: string;
 }
 
@@ -113,4 +105,4 @@ export interface UserSettings {
   botanicalPoints: number;
 }
 
-export type MainView = 'home' | 'notebook' | 'write' | 'read' | 'insights' | 'sanctuary';
+export type MainView = 'home' | 'notebook' | 'insights' | 'sanctuary' | 'write' | 'read';

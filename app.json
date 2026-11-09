@@ -1,0 +1,24 @@
+{
+  "expo": {
+    "name": "LetterForMyself",
+    "slug": "letterformyself",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "package": "com.letterformyself.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#2D5A47",
+        "foregroundImage": "./assets/android-icon-foreground.png"
+      },
+      "predictiveBackGestureEnabled": true
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    }
+  }
+}
