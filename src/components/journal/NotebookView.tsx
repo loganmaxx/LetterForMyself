@@ -8,7 +8,7 @@ import {
   TextInput,
   Image,
 } from 'react-native';
-import { Search, Sparkles, Star } from 'lucide-react-native';
+import { Search, Sparkles, Star, Lock } from 'lucide-react-native';
 import { JournalEntry, Language } from '../../types';
 import { ALL_EMOTIONS } from '../../constants/emotions';
 import { PALETTE, FONTS } from '../../constants/theme';
@@ -27,16 +27,20 @@ export const NotebookView: React.FC<NotebookViewProps> = ({
   language,
   nightMode,
   journals,
-  onOpenWrite,
   onOpenReader,
   onToggleFavorite,
 }) => {
   const isNight = nightMode;
+  const lang = language;
+
   const [search, setSearch] = useState('');
-  const [filter, setFilter] = useState<'all' | 'favorite' | 'capsule'>('all');
+  const [filter, setFilter] = useState<'all' | 'favorite' | 'cbt' | 'capsule'>('all');
+
+  const nowStr = new Date().toISOString().split('T')[0];
 
   const filtered = journals.filter((entry) => {
     if (filter === 'favorite' && !entry.isFavorite) return false;
+    if (filter === 'cbt' && entry.template !== 'cbt') return false;
     if (filter === 'capsule' && entry.template !== 'capsule') return false;
     if (search.trim()) {
       const q = search.toLowerCase();
@@ -55,46 +59,62 @@ export const NotebookView: React.FC<NotebookViewProps> = ({
     onOpenReader(journals[randomIndex]);
   };
 
+  const tabs = [
+    { id: 'all' as const, label: lang === 'id' ? 'Semua' : 'All' },
+    { id: 'favorite' as const, label: lang === 'id' ? '⭐ Favorit' : '⭐ Starred' },
+    { id: 'cbt' as const, label: '🌱 CBT' },
+    { id: 'capsule' as const, label: lang === 'id' ? '💌 Kapsul' : '💌 Capsules' },
+  ];
+
   return (
     <View style={[styles.container, isNight && { backgroundColor: PALETTE.nightBg }]}>
-      {/* 1. Header & Actions */}
-      <View style={[styles.header, isNight && styles.nightHeader]}>
-        <View style={styles.headerTop}>
-          <Text style={[styles.title, isNight && { color: PALETTE.nightInk }]}>
-            {language === 'id' ? 'Buku Jurnal' : 'Notebook Shelf'}
-          </Text>
-
-          <TouchableOpacity
-            style={styles.randomBtn}
-            onPress={handleRandomMemory}
-            activeOpacity={0.8}
-          >
-            <Sparkles size={14} color={PALETTE.terracotta} />
-            <Text style={styles.randomBtnText}>
-              {language === 'id' ? 'Kenangan Acak' : 'Random Memory'}
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+        {/* 1. Solid Botanical Header Banner */}
+        <View style={[styles.heroBanner, isNight && styles.nightHeroBanner]}>
+          <View>
+            <Text style={styles.bannerSubtitle}>
+              {lang === 'id' ? 'ARSIP PRIBADI' : 'PERSONAL ARCHIVE'}
             </Text>
-          </TouchableOpacity>
+            <Text style={styles.bannerTitle}>
+              {lang === 'id' ? 'Jurnal Saya' : 'My Journal'}
+            </Text>
+          </View>
+
+          <View style={styles.bannerActions}>
+            {journals.length > 1 && (
+              <TouchableOpacity
+                style={styles.randomBtn}
+                onPress={handleRandomMemory}
+                activeOpacity={0.8}
+              >
+                <Sparkles size={13} color="#FFFFFF" />
+                <Text style={styles.randomBtnText}>
+                  {lang === 'id' ? 'Kenangan Acak' : 'Random Memory'}
+                </Text>
+              </TouchableOpacity>
+            )}
+            <View style={styles.entryCountBadge}>
+              <Text style={styles.entryCountText}>
+                {filtered.length} {lang === 'id' ? 'Catatan' : 'Entries'}
+              </Text>
+            </View>
+          </View>
         </View>
 
-        {/* Search Bar */}
+        {/* 2. Search & Segmented Filter Pills */}
         <View style={[styles.searchBox, isNight && styles.nightSearchBox]}>
           <Search size={16} color={isNight ? PALETTE.nightInkMuted : PALETTE.inkMuted} />
           <TextInput
             style={[styles.searchInput, { color: isNight ? PALETTE.nightInk : PALETTE.ink }]}
-            placeholder={language === 'id' ? 'Cari kata atau ingatan...' : 'Search letters...'}
+            placeholder={lang === 'id' ? 'Cari kata atau ingatan...' : 'Search reflections...'}
             placeholderTextColor={isNight ? PALETTE.nightInkMuted : PALETTE.inkMuted}
             value={search}
             onChangeText={setSearch}
           />
         </View>
 
-        {/* Filter Pills */}
-        <View style={styles.filterRow}>
-          {[
-            { id: 'all' as const, label: language === 'id' ? 'Semua' : 'All' },
-            { id: 'favorite' as const, label: language === 'id' ? '⭐ Favorit' : '⭐ Starred' },
-            { id: 'capsule' as const, label: language === 'id' ? '💌 Kapsul Waktu' : '💌 Capsules' },
-          ].map((tab) => {
+        <View style={[styles.filterContainer, isNight && styles.nightFilterContainer]}>
+          {tabs.map((tab) => {
             const isSelected = filter === tab.id;
             return (
               <TouchableOpacity
@@ -102,7 +122,7 @@ export const NotebookView: React.FC<NotebookViewProps> = ({
                 style={[
                   styles.filterPill,
                   isSelected && styles.filterPillActive,
-                  isNight && { backgroundColor: isSelected ? PALETTE.botanicalHeader : PALETTE.nightCard },
+                  isSelected && isNight && { backgroundColor: PALETTE.botanicalHeader },
                 ]}
                 onPress={() => {
                   HapticsService.selection();
@@ -122,74 +142,101 @@ export const NotebookView: React.FC<NotebookViewProps> = ({
             );
           })}
         </View>
-      </View>
 
-      {/* 2. Journal Entry List */}
-      <ScrollView contentContainerStyle={styles.listContent} showsVerticalScrollIndicator={false}>
+        {/* 3. Journal Entry List */}
         {filtered.length === 0 ? (
           <View style={styles.emptyBox}>
             <Text style={[styles.emptyText, isNight && { color: PALETTE.nightInkMuted }]}>
-              {language === 'id' ? 'Belum ada surat yang cocok.' : 'No letters found.'}
+              {lang === 'id' ? 'Belum ada surat yang cocok.' : 'No letters found in this view.'}
             </Text>
           </View>
         ) : (
-          filtered.map((entry) => {
-            const emotion = ALL_EMOTIONS.find((e) => e.id === entry.mood);
-            const d = new Date(entry.createdAt);
-            const dayNum = d.getDate().toString().padStart(2, '0');
-            const monthShort = d
-              .toLocaleDateString(language === 'id' ? 'id-ID' : 'en-US', { month: 'short' })
-              .toUpperCase();
+          <View style={styles.list}>
+            {filtered.map((entry) => {
+              const emotion = ALL_EMOTIONS.find((e) => e.id === entry.mood);
+              const d = new Date(entry.createdAt);
+              const dayNum = String(d.getDate()).padStart(2, '0');
+              const monthShort = d
+                .toLocaleDateString(lang === 'id' ? 'id-ID' : 'en-US', { month: 'short' })
+                .toUpperCase();
+              const isSealed =
+                entry.template === 'capsule' &&
+                !entry.isUnlocked &&
+                !!entry.unlockDate &&
+                entry.unlockDate > nowStr;
 
-            return (
-              <TouchableOpacity
-                key={entry.id}
-                style={[styles.entryCard, isNight && styles.nightCard]}
-                onPress={() => {
-                  HapticsService.light();
-                  onOpenReader(entry);
-                }}
-                activeOpacity={0.85}
-              >
-                <View style={styles.cardHeader}>
-                  <View style={styles.dateTag}>
-                    <Text style={styles.dateTagText}>{dayNum} {monthShort}</Text>
+              return (
+                <TouchableOpacity
+                  key={entry.id}
+                  style={[styles.entryCard, isNight && styles.nightCard]}
+                  onPress={() => {
+                    HapticsService.light();
+                    onOpenReader(entry);
+                  }}
+                  activeOpacity={0.85}
+                >
+                  {/* Solid Tinted Date Badge */}
+                  <View style={[styles.dateBadge, isNight && { backgroundColor: PALETTE.nightCardSecondary }]}>
+                    <Text style={[styles.dateDay, isNight && { color: PALETTE.nightInk }]}>
+                      {dayNum}
+                    </Text>
+                    <Text style={[styles.dateMonth, isNight && { color: '#88B7A1' }]}>
+                      {monthShort}
+                    </Text>
                   </View>
 
-                  <View style={styles.cardHeaderRight}>
-                    {emotion && (
-                      <View style={styles.entryMoodPill}>
-                        <Image source={emotion.image} style={styles.moodImg} resizeMode="contain" />
-                        <Text style={[styles.entryMoodLabel, isNight && { color: PALETTE.nightInkSecondary }]}>
-                          {emotion.label[language]}
+                  {/* Title & Excerpt */}
+                  <View style={styles.entryBody}>
+                    <Text
+                      style={[styles.entryTitle, isNight && { color: PALETTE.nightInk }]}
+                      numberOfLines={1}
+                    >
+                      {entry.title}
+                    </Text>
+                    {isSealed ? (
+                      <View style={styles.capsuleRow}>
+                        <Lock size={12} color={PALETTE.terracotta} />
+                        <Text style={styles.capsuleText}>
+                          {lang === 'id'
+                            ? `Kapsul waktu (${entry.unlockDate})`
+                            : `Time capsule (${entry.unlockDate})`}
                         </Text>
                       </View>
+                    ) : (
+                      <Text
+                        style={[styles.entryExcerpt, isNight && { color: PALETTE.nightInkSecondary }]}
+                        numberOfLines={1}
+                      >
+                        {entry.content}
+                      </Text>
+                    )}
+                  </View>
+
+                  {/* Right: 3D Emotion & Star Favorite */}
+                  <View style={styles.cardRight}>
+                    {emotion && (
+                      <Image source={emotion.image} style={styles.moodImg} resizeMode="contain" />
                     )}
                     <TouchableOpacity
                       onPress={() => {
                         HapticsService.light();
                         onToggleFavorite(entry.id);
                       }}
+                      style={styles.starBtn}
                     >
                       <Star
-                        size={17}
+                        size={16}
                         color={entry.isFavorite ? '#E8A838' : isNight ? PALETTE.nightInkMuted : PALETTE.inkMuted}
                         fill={entry.isFavorite ? '#E8A838' : 'transparent'}
                       />
                     </TouchableOpacity>
                   </View>
-                </View>
-
-                <Text style={[styles.entryTitle, isNight && { color: PALETTE.nightInk }]} numberOfLines={1}>
-                  {entry.title}
-                </Text>
-                <Text style={[styles.entryContent, isNight && { color: PALETTE.nightInkSecondary }]} numberOfLines={2}>
-                  {entry.content}
-                </Text>
-              </TouchableOpacity>
-            );
-          })
+                </TouchableOpacity>
+              );
+            })}
+          </View>
         )}
+
         <View style={{ height: 110 }} />
       </ScrollView>
     </View>
@@ -201,154 +248,206 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: PALETTE.bg,
   },
-  header: {
-    backgroundColor: PALETTE.bg,
-    paddingHorizontal: 16,
-    paddingTop: 10,
-    paddingBottom: 14,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(38, 63, 54, 0.06)',
+  scrollContent: {
+    padding: 16,
+    paddingTop: 8,
+    gap: 12,
   },
-  nightHeader: {
-    backgroundColor: PALETTE.nightBg,
-    borderBottomColor: PALETTE.nightBorder,
-  },
-  headerTop: {
+  heroBanner: {
+    backgroundColor: '#1F382B',
+    borderRadius: 26,
+    padding: 20,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12,
+    shadowColor: '#172722',
+    shadowOpacity: 0.16,
+    shadowRadius: 10,
+    elevation: 4,
   },
-  title: {
-    fontSize: 22,
-    fontFamily: FONTS.serifSemiBold,
-    color: PALETTE.ink,
+  nightHeroBanner: {
+    backgroundColor: '#16231E',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+  },
+  bannerSubtitle: {
+    fontSize: 10,
+    fontFamily: FONTS.sansBold,
+    color: '#C5DBD0',
+    letterSpacing: 2,
+    marginBottom: 2,
+  },
+  bannerTitle: {
+    fontSize: 24,
+    fontFamily: FONTS.serifRegular,
+    color: '#FAF6F0',
+    letterSpacing: -0.3,
+  },
+  bannerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
   },
   randomBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 5,
-    backgroundColor: '#FAF5EE',
-    borderWidth: 1,
-    borderColor: '#EFE7DA',
-    paddingVertical: 6,
+    backgroundColor: PALETTE.terracotta,
+    paddingVertical: 7,
     paddingHorizontal: 12,
-    borderRadius: 14,
+    borderRadius: 20,
+    shadowColor: PALETTE.terracotta,
+    shadowOpacity: 0.35,
+    shadowRadius: 4,
+    elevation: 2,
   },
   randomBtnText: {
     fontSize: 11,
     fontFamily: FONTS.sansSemiBold,
-    color: PALETTE.terracotta,
+    color: '#FFFFFF',
+  },
+  entryCountBadge: {
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    borderRadius: 16,
+  },
+  entryCountText: {
+    fontSize: 11,
+    fontFamily: FONTS.sansMedium,
+    color: '#E3EDE6',
   },
   searchBox: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    backgroundColor: PALETTE.sand,
-    paddingHorizontal: 12,
+    gap: 10,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 24,
+    paddingHorizontal: 16,
     paddingVertical: 9,
-    borderRadius: 16,
-    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.9)',
+    shadowColor: '#2A2421',
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
+    elevation: 2,
   },
   nightSearchBox: {
-    backgroundColor: PALETTE.nightCardSecondary,
+    backgroundColor: PALETTE.nightCard,
+    borderColor: PALETTE.nightBorder,
   },
   searchInput: {
     flex: 1,
     fontSize: 13,
     fontFamily: FONTS.sansRegular,
-    padding: 0,
+    paddingVertical: 0,
   },
-  filterRow: {
+  filterContainer: {
     flexDirection: 'row',
-    gap: 8,
+    backgroundColor: '#E6DEC8',
+    borderRadius: 20,
+    padding: 3,
+    justifyContent: 'space-between',
+  },
+  nightFilterContainer: {
+    backgroundColor: PALETTE.nightCardSecondary,
   },
   filterPill: {
-    paddingVertical: 5,
-    paddingHorizontal: 12,
-    backgroundColor: PALETTE.sand,
-    borderRadius: 14,
+    flex: 1,
+    paddingVertical: 6,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 16,
   },
   filterPillActive: {
-    backgroundColor: PALETTE.botanicalHeader,
+    backgroundColor: '#1F332C',
   },
   filterText: {
     fontSize: 11,
     fontFamily: FONTS.sansMedium,
-    color: PALETTE.ink,
+    color: '#544943',
   },
   filterTextActive: {
     color: '#FFFFFF',
     fontFamily: FONTS.sansBold,
   },
-  listContent: {
-    padding: 16,
+  list: {
+    gap: 10,
   },
   entryCard: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    padding: 16,
-    marginBottom: 12,
+    borderRadius: 22,
+    padding: 13,
     borderWidth: 1,
-    borderColor: PALETTE.border,
-    shadowColor: '#000',
-    shadowOpacity: 0.03,
-    shadowRadius: 6,
-    elevation: 1,
+    borderColor: 'rgba(255, 255, 255, 0.9)',
+    shadowColor: '#2A2421',
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
   },
   nightCard: {
     backgroundColor: PALETTE.nightCard,
     borderColor: PALETTE.nightBorder,
-    borderWidth: 1,
   },
-  cardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  dateBadge: {
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    backgroundColor: '#E3EDE6',
+    justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 8,
   },
-  dateTag: {
-    backgroundColor: '#263F36',
-    paddingVertical: 3,
-    paddingHorizontal: 8,
-    borderRadius: 6,
+  dateDay: {
+    fontSize: 16,
+    fontFamily: FONTS.serifSemiBold,
+    color: '#1F332C',
+    lineHeight: 18,
   },
-  dateTagText: {
-    color: '#FFFFFF',
+  dateMonth: {
     fontSize: 9,
     fontFamily: FONTS.sansBold,
-    letterSpacing: 0.5,
+    color: '#2F4F43',
+    letterSpacing: 0.8,
   },
-  cardHeaderRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+  entryBody: {
+    flex: 1,
+    minWidth: 0,
   },
-  entryMoodPill: {
+  entryTitle: {
+    fontSize: 15,
+    fontFamily: FONTS.serifMedium,
+    color: '#2A2421',
+    marginBottom: 2,
+  },
+  entryExcerpt: {
+    fontSize: 12,
+    fontFamily: FONTS.sansRegular,
+    color: '#8C7E75',
+  },
+  capsuleRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
   },
-  moodImg: {
-    width: 20,
-    height: 20,
-  },
-  entryMoodLabel: {
-    fontSize: 10,
+  capsuleText: {
+    fontSize: 11,
     fontFamily: FONTS.sansMedium,
-    color: PALETTE.inkMuted,
+    color: PALETTE.terracotta,
   },
-  entryTitle: {
-    fontSize: 17,
-    fontFamily: FONTS.serifSemiBold,
-    color: PALETTE.ink,
-    marginBottom: 4,
+  cardRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
   },
-  entryContent: {
-    fontSize: 13,
-    fontFamily: FONTS.sansRegular,
-    color: PALETTE.inkSecondary,
-    lineHeight: 19,
+  moodImg: {
+    width: 26,
+    height: 26,
+  },
+  starBtn: {
+    padding: 4,
   },
   emptyBox: {
     paddingVertical: 40,

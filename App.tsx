@@ -251,12 +251,9 @@ export default function App() {
               <View style={styles.brandIconBox}>
                 <Feather size={16} color="#FFFFFF" strokeWidth={2.4} />
               </View>
-              <View>
-                <Text style={[styles.brandName, isNight && { color: PALETTE.nightInk }]}>
-                  LetterForMyself
-                </Text>
-                <Text style={styles.brandTagline}>Mindful Sanctuary</Text>
-              </View>
+              <Text style={[styles.brandName, isNight && { color: PALETTE.nightInk }]}>
+                Letter<Text style={[styles.brandNameItalic, isNight && { color: PALETTE.nightInkMuted }]}>ForMyself</Text>
+              </Text>
             </TouchableOpacity>
 
             <View style={styles.headerActions}>
@@ -421,16 +418,14 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   brandName: {
-    fontSize: 16,
-    fontFamily: FONTS.serifSemiBold,
+    fontSize: 18,
+    fontFamily: FONTS.serifMedium,
     color: PALETTE.ink,
-    letterSpacing: -0.3,
+    letterSpacing: -0.2,
   },
-  brandTagline: {
-    fontSize: 9,
-    fontFamily: FONTS.sansMedium,
-    color: PALETTE.inkMuted,
-    letterSpacing: 0.4,
+  brandNameItalic: {
+    fontFamily: FONTS.serifItalic,
+    color: '#8C7E75',
   },
   headerActions: {
     flexDirection: 'row',

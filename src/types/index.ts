@@ -12,9 +12,12 @@ export type FontStyle = 'serif' | 'sans' | 'handwriting';
 
 export type MoodType =
   | 'happy'
+  | 'radiant'
   | 'peaceful'
   | 'calm'
+  | 'grounded'
   | 'grateful'
+  | 'loved'
   | 'confident'
   | 'energetic'
   | 'excited'
@@ -23,6 +26,8 @@ export type MoodType =
   | 'relaxed'
   | 'safe'
   | 'sad'
+  | 'melancholy'
+  | 'cry'
   | 'anxious'
   | 'sleepy'
   | 'stressed'
@@ -30,7 +35,8 @@ export type MoodType =
   | 'lonely'
   | 'frustrated'
   | 'angry'
-  | 'bored';
+  | 'bored'
+  | 'confused';
 
 export type TemplateType =
   | 'freeflow'

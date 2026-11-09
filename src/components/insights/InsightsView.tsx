@@ -45,12 +45,13 @@ export const InsightsView: React.FC<InsightsViewProps> = ({
       contentContainerStyle={styles.content}
       showsVerticalScrollIndicator={false}
     >
-      <View style={styles.header}>
-        <Text style={[styles.title, isNight && { color: PALETTE.nightInk }]}>
-          {language === 'id' ? 'Wawasan & Cuaca Batin' : 'Inner Weather Insights'}
+      {/* Solid Botanical Header Banner */}
+      <View style={[styles.heroBanner, isNight && styles.nightHeroBanner]}>
+        <Text style={styles.bannerSubtitle}>
+          {language === 'id' ? 'KALENDER & ANALISIS' : 'CALENDAR & INSIGHTS'}
         </Text>
-        <Text style={[styles.subtitle, isNight && { color: PALETTE.nightInkMuted }]}>
-          {language === 'id' ? 'Pola emosi dan kebiasaan menulis santaimu' : 'Your mindful journaling habits'}
+        <Text style={styles.bannerTitle}>
+          {language === 'id' ? 'Ritme Batin & Cuaca Emosi' : 'Inner Rhythm & Mood Insights'}
         </Text>
       </View>
 
@@ -139,19 +140,33 @@ const styles = StyleSheet.create({
   content: {
     padding: 16,
   },
-  header: {
+  heroBanner: {
+    backgroundColor: '#1F382B',
+    borderRadius: 26,
+    padding: 20,
     marginBottom: 16,
+    shadowColor: '#172722',
+    shadowOpacity: 0.16,
+    shadowRadius: 10,
+    elevation: 4,
   },
-  title: {
+  nightHeroBanner: {
+    backgroundColor: '#16231E',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+  },
+  bannerSubtitle: {
+    fontSize: 10,
+    fontFamily: FONTS.sansBold,
+    color: '#C5DBD0',
+    letterSpacing: 2,
+    marginBottom: 2,
+  },
+  bannerTitle: {
     fontSize: 22,
-    fontFamily: FONTS.serifSemiBold,
-    color: PALETTE.ink,
-  },
-  subtitle: {
-    fontSize: 12,
-    fontFamily: FONTS.sansMedium,
-    color: PALETTE.inkMuted,
-    marginTop: 2,
+    fontFamily: FONTS.serifRegular,
+    color: '#FAF6F0',
+    letterSpacing: -0.3,
   },
   statsRow: {
     flexDirection: 'row',
