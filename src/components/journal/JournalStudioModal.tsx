@@ -495,26 +495,38 @@ export const JournalStudioModal: React.FC<JournalStudioPageProps> = ({
   return (
     <div className="max-w-3xl mx-auto px-3.5 sm:px-6 py-4 space-y-4 animate-in fade-in duration-200">
       {/* 1. Ultra-Calm Top Bar */}
-      <div className="sticky top-14 z-20 bg-paper-bg/95 backdrop-blur-md py-2 flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2">
+      <div className="sticky top-14 z-20 bg-paper-bg/95 backdrop-blur-md py-2 flex items-center justify-between gap-1.5 sm:gap-2">
+        <div className="flex items-center gap-1 sm:gap-2 min-w-0">
           <button
             type="button"
             onClick={onCancel}
-            className="px-3 py-1.5 rounded-full text-xs font-medium text-ink-600 hover:text-ink-900 hover:bg-paper-warm transition flex items-center gap-1.5"
+            className="px-2.5 sm:px-3 py-1.5 rounded-full text-xs font-medium text-ink-600 hover:text-ink-900 hover:bg-paper-warm transition flex items-center gap-1 shrink-0"
           >
-            <ArrowLeft className="w-4 h-4" />
-            <span>{language === 'en' ? 'Back' : 'Kembali'}</span>
+            <ArrowLeft className="w-4 h-4 shrink-0" />
+            <span className="hidden xs:inline">{language === 'en' ? 'Back' : 'Kembali'}</span>
           </button>
 
-          {/* Auto-Save Status Indicator */}
+          {/* Auto-Save Status Indicator (Mobile-optimized to never overflow) */}
           {!editingEntry && draftStatus !== 'idle' && (
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-botanical-100/70 text-botanical-800 text-[11px] font-medium">
+            <div
+              className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-full bg-botanical-100/70 text-botanical-800 text-[11px] font-medium shrink-0 max-w-[130px] sm:max-w-none"
+              title={
+                draftStatus === 'saving'
+                  ? language === 'en' ? 'Saving draft...' : 'Menyimpan draft...'
+                  : restoredFromDraft
+                  ? language === 'en' ? 'Draft restored' : 'Draft dipulihkan'
+                  : language === 'en' ? 'Draft saved' : 'Draft tersimpan'
+              }
+            >
               {draftStatus === 'saving' ? (
-                <span>{language === 'en' ? 'Saving draft...' : 'Menyimpan draft...'}</span>
+                <>
+                  <span className="hidden sm:inline">{language === 'en' ? 'Saving draft...' : 'Menyimpan draft...'}</span>
+                  <span className="sm:hidden text-[10px]">{language === 'en' ? 'Saving...' : 'Menyimpan...'}</span>
+                </>
               ) : (
                 <>
-                  <Check className="w-3 h-3 text-botanical-700" />
-                  <span>
+                  <Check className="w-3 h-3 text-botanical-700 shrink-0" />
+                  <span className="hidden sm:inline">
                     {restoredFromDraft
                       ? language === 'en'
                         ? 'Draft restored'
@@ -523,10 +535,13 @@ export const JournalStudioModal: React.FC<JournalStudioPageProps> = ({
                       ? 'Draft saved'
                       : 'Draft tersimpan'}
                   </span>
+                  <span className="sm:hidden text-[10px]">
+                    {language === 'en' ? 'Saved' : 'Draft'}
+                  </span>
                   <button
                     type="button"
                     onClick={handleClearDraft}
-                    className="ml-1 text-ink-400 hover:text-rose-600 transition"
+                    className="ml-0.5 text-ink-400 hover:text-rose-600 transition shrink-0"
                     title={language === 'en' ? 'Clear draft' : 'Hapus draft'}
                   >
                     <X className="w-3 h-3" />
@@ -537,37 +552,39 @@ export const JournalStudioModal: React.FC<JournalStudioPageProps> = ({
           )}
         </div>
 
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
           {/* Toggle Paper & Font Drawer */}
           <button
             type="button"
             onClick={() => setShowCustomizeDrawer(!showCustomizeDrawer)}
-            className={`px-3 py-1.5 rounded-full text-xs font-medium transition flex items-center gap-1.5 ${
+            className={`p-1.5 sm:px-3 sm:py-1.5 rounded-full text-xs font-medium transition flex items-center gap-1.5 shrink-0 ${
               showCustomizeDrawer
                 ? 'bg-ink-900 text-white'
                 : 'bg-paper-warm/80 text-ink-700 hover:bg-paper-deep'
             }`}
+            title={language === 'en' ? 'Paper & Font' : 'Kertas & Font'}
           >
             <Palette className="w-3.5 h-3.5" />
-            <span>{language === 'en' ? 'Paper' : 'Kertas'}</span>
+            <span className="hidden sm:inline">{language === 'en' ? 'Paper' : 'Kertas'}</span>
           </button>
 
           {/* Inspire Prompt */}
           <button
             type="button"
             onClick={handleShufflePrompt}
-            className="px-3 py-1.5 rounded-full text-xs font-medium bg-paper-warm/80 text-ink-700 hover:bg-paper-deep transition flex items-center gap-1"
+            className="p-1.5 sm:px-3 sm:py-1.5 rounded-full text-xs font-medium bg-paper-warm/80 text-ink-700 hover:bg-paper-deep transition flex items-center gap-1 shrink-0"
             title={t.guidedPromptsBtn}
           >
             <Sparkles className="w-3.5 h-3.5 text-amberwarm-600" />
-            <span className="hidden sm:inline">Prompt</span>
+            <span className="hidden md:inline">Prompt</span>
           </button>
 
           {/* Favorite */}
           <button
             type="button"
             onClick={() => setIsFavorite(!isFavorite)}
-            className="p-1.5 rounded-full text-ink-400 hover:text-amberwarm-500 transition"
+            className="p-1.5 rounded-full text-ink-400 hover:text-amberwarm-500 transition shrink-0"
+            title={isFavorite ? 'Starred' : 'Star'}
           >
             <Star
               className={`w-4 h-4 ${
@@ -576,22 +593,22 @@ export const JournalStudioModal: React.FC<JournalStudioPageProps> = ({
             />
           </button>
 
-          {/* Save / Seal Button */}
+          {/* Save / Seal Button (Permanently locked in view & shrink-0) */}
           <button
             type="button"
             onClick={handleSaveSubmit}
-            className={`px-4 py-1.5 rounded-full text-white font-medium text-xs shadow-xs transition flex items-center gap-1.5 ${
+            className={`px-3.5 sm:px-4 py-1.5 rounded-full text-white font-semibold text-xs shadow-sm transition flex items-center gap-1.5 shrink-0 active:scale-95 ${
               template === 'capsule'
                 ? 'bg-terracotta-600 hover:bg-terracotta-700'
                 : 'bg-botanical-600 hover:bg-botanical-700'
             }`}
           >
-            {template === 'capsule' && <Lock className="w-3 h-3" />}
-            <span>
+            {template === 'capsule' && <Lock className="w-3 h-3 shrink-0" />}
+            <span className="whitespace-nowrap">
               {template === 'capsule'
                 ? language === 'en'
-                  ? 'Seal Capsule'
-                  : 'Segel Kapsul'
+                  ? 'Seal'
+                  : 'Segel'
                 : language === 'en'
                 ? 'Save'
                 : 'Simpan'}
@@ -1265,6 +1282,30 @@ export const JournalStudioModal: React.FC<JournalStudioPageProps> = ({
                 {content.trim().split(/\s+/).filter(Boolean).length}{' '}
                 {language === 'en' ? 'words' : 'kata'}
               </span>
+            </div>
+
+            {/* Mobile Bottom Quick Save Button */}
+            <div className="pt-2 sm:hidden">
+              <button
+                type="button"
+                onClick={handleSaveSubmit}
+                className={`w-full py-2.5 rounded-2xl text-white font-semibold text-xs shadow-sm flex items-center justify-center gap-1.5 active:scale-98 transition ${
+                  template === 'capsule'
+                    ? 'bg-terracotta-600 hover:bg-terracotta-700'
+                    : 'bg-botanical-600 hover:bg-botanical-700'
+                }`}
+              >
+                {template === 'capsule' && <Lock className="w-3.5 h-3.5" />}
+                <span>
+                  {template === 'capsule'
+                    ? language === 'en'
+                      ? 'Seal Time-Capsule'
+                      : 'Segel Kapsul Waktu'
+                    : language === 'en'
+                    ? 'Save Letter'
+                    : 'Simpan Surat'}
+                </span>
+              </button>
             </div>
           </div>
         </div>
