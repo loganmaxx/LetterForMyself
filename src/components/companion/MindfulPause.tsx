@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { Play, Pause, RotateCcw } from 'lucide-react-native';
 import { Language } from '../../types';
-import { PALETTE } from '../../constants/theme';
+import { PALETTE, FONTS } from '../../constants/theme';
 import { HapticsService } from '../../services/hapticsService';
 
 interface MindfulPauseProps {
@@ -120,7 +120,7 @@ export const MindfulPause: React.FC<MindfulPauseProps> = ({ language, nightMode 
           style={[
             styles.breathCircle,
             { transform: [{ scale: scaleAnim }] },
-            isNight && { backgroundColor: 'rgba(75, 123, 107, 0.25)', borderColor: PALETTE.primary },
+            isNight && { backgroundColor: 'rgba(75, 123, 107, 0.25)', borderColor: PALETTE.botanicalHeader },
           ]}
         >
           <Text style={[styles.phaseText, isNight && { color: PALETTE.nightInk }]}>
@@ -141,7 +141,7 @@ export const MindfulPause: React.FC<MindfulPauseProps> = ({ language, nightMode 
         </TouchableOpacity>
       </View>
 
-      <View style={{ height: 100 }} />
+      <View style={{ height: 110 }} />
     </View>
   );
 };
@@ -157,12 +157,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   title: {
-    fontSize: 20,
-    fontWeight: '700',
+    fontSize: 22,
+    fontFamily: FONTS.serifSemiBold,
     color: PALETTE.ink,
   },
   subtitle: {
     fontSize: 12,
+    fontFamily: FONTS.sansMedium,
     color: PALETTE.inkMuted,
     marginTop: 4,
   },
@@ -175,26 +176,26 @@ const styles = StyleSheet.create({
     width: 200,
     height: 200,
     borderRadius: 100,
-    backgroundColor: '#DDE9E2',
+    backgroundColor: '#DCE8E2',
     borderWidth: 2,
-    borderColor: PALETTE.primary,
+    borderColor: PALETTE.botanicalHeader,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOpacity: 0.08,
-    shadowRadius: 10,
+    shadowColor: '#263F36',
+    shadowOpacity: 0.12,
+    shadowRadius: 12,
     elevation: 3,
   },
   phaseText: {
     fontSize: 15,
-    fontWeight: '700',
-    color: PALETTE.primary,
+    fontFamily: FONTS.sansBold,
+    color: PALETTE.botanicalHeader,
     textAlign: 'center',
   },
   counterText: {
     fontSize: 28,
-    fontWeight: '800',
-    color: PALETTE.primary,
+    fontFamily: FONTS.sansBold,
+    color: PALETTE.botanicalHeader,
     marginTop: 6,
   },
   controlRow: {
@@ -208,7 +209,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: '#E8E0D2',
+    backgroundColor: PALETTE.sand,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -216,12 +217,12 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: PALETTE.primary,
+    backgroundColor: PALETTE.botanicalHeader,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOpacity: 0.15,
-    shadowRadius: 6,
-    elevation: 3,
+    shadowColor: '#263F36',
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    elevation: 4,
   },
 });

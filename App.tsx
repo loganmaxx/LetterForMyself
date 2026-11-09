@@ -6,8 +6,25 @@ import {
   TouchableOpacity,
   BackHandler,
 } from 'react-native';
-import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import { StatusBar } from 'expo-status-bar';
+import { useFonts } from 'expo-font';
+import {
+  Newsreader_400Regular,
+  Newsreader_500Medium,
+  Newsreader_600SemiBold,
+  Newsreader_400Regular_Italic,
+} from '@expo-google-fonts/newsreader';
+import {
+  PlusJakartaSans_400Regular,
+  PlusJakartaSans_500Medium,
+  PlusJakartaSans_600SemiBold,
+  PlusJakartaSans_700Bold,
+} from '@expo-google-fonts/plus-jakarta-sans';
+import {
+  Caveat_600SemiBold,
+  Caveat_700Bold,
+} from '@expo-google-fonts/caveat';
 import { Moon, Sun, Feather } from 'lucide-react-native';
 import {
   JournalEntry,
@@ -19,7 +36,7 @@ import {
   UserSettings,
 } from './src/types';
 import { StorageService } from './src/services/storageService';
-import { PALETTE } from './src/constants/theme';
+import { PALETTE, FONTS } from './src/constants/theme';
 import { HapticsService } from './src/services/hapticsService';
 import { HomeView } from './src/components/home/HomeView';
 import { NotebookView } from './src/components/journal/NotebookView';
@@ -31,6 +48,19 @@ import { MoodPickerModal } from './src/components/modals/MoodPickerModal';
 import { BottomNav } from './src/components/layout/BottomNav';
 
 export default function App() {
+  const [fontsLoaded] = useFonts({
+    Newsreader_400Regular,
+    Newsreader_500Medium,
+    Newsreader_600SemiBold,
+    Newsreader_400Regular_Italic,
+    PlusJakartaSans_400Regular,
+    PlusJakartaSans_500Medium,
+    PlusJakartaSans_600SemiBold,
+    PlusJakartaSans_700Bold,
+    Caveat_600SemiBold,
+    Caveat_700Bold,
+  });
+
   const [settings, setSettings] = useState<UserSettings>({
     name: 'Traveler',
     language: 'id',
@@ -39,9 +69,9 @@ export default function App() {
     nightMode: false,
     pinEnabled: false,
     pinCode: '',
-    streakDays: 3,
+    streakDays: 4,
     lastActiveDate: new Date().toISOString().split('T')[0],
-    botanicalPoints: 80,
+    botanicalPoints: 95,
   });
   const [journals, setJournals] = useState<JournalEntry[]>([]);
   const [moods, setMoods] = useState<MoodCheckIn[]>([]);
@@ -196,6 +226,10 @@ export default function App() {
     setCurrentView('write');
   };
 
+  if (!fontsLoaded) {
+    return <View style={{ flex: 1, backgroundColor: PALETTE.bg }} />;
+  }
+
   const isNight = !!settings.nightMode;
 
   return (
@@ -215,7 +249,7 @@ export default function App() {
               activeOpacity={0.8}
             >
               <View style={styles.brandIconBox}>
-                <Feather size={16} color="#FFFFFF" />
+                <Feather size={16} color="#FFFFFF" strokeWidth={2.4} />
               </View>
               <View>
                 <Text style={[styles.brandName, isNight && { color: PALETTE.nightInk }]}>
@@ -240,9 +274,9 @@ export default function App() {
                 onPress={toggleNightMode}
               >
                 {isNight ? (
-                  <Sun size={16} color="#F4A261" />
+                  <Sun size={15} color="#F4A261" />
                 ) : (
-                  <Moon size={16} color={PALETTE.primary} />
+                  <Moon size={15} color={PALETTE.botanicalHeader} />
                 )}
               </TouchableOpacity>
             </View>
@@ -359,17 +393,20 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 16,
+    paddingHorizontal: 18,
     paddingVertical: 10,
     backgroundColor: PALETTE.bg,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(38, 63, 54, 0.06)',
   },
   nightTopHeader: {
     backgroundColor: PALETTE.nightBg,
+    borderBottomColor: PALETTE.nightBorder,
   },
   brandRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 10,
   },
   brandIconBox: {
     width: 32,
@@ -378,16 +415,22 @@ const styles = StyleSheet.create({
     backgroundColor: '#2D5A47',
     justifyContent: 'center',
     alignItems: 'center',
+    shadowColor: '#2D5A47',
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 2,
   },
   brandName: {
-    fontSize: 15,
-    fontWeight: '700',
+    fontSize: 16,
+    fontFamily: FONTS.serifSemiBold,
     color: PALETTE.ink,
+    letterSpacing: -0.3,
   },
   brandTagline: {
     fontSize: 9,
+    fontFamily: FONTS.sansMedium,
     color: PALETTE.inkMuted,
-    fontWeight: '500',
+    letterSpacing: 0.4,
   },
   headerActions: {
     flexDirection: 'row',
@@ -395,7 +438,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   headerPill: {
-    backgroundColor: '#E8E0D2',
+    backgroundColor: PALETTE.sand,
     paddingVertical: 4,
     paddingHorizontal: 8,
     borderRadius: 10,
@@ -405,11 +448,11 @@ const styles = StyleSheet.create({
   },
   headerPillText: {
     fontSize: 10,
-    fontWeight: '700',
+    fontFamily: FONTS.sansBold,
     color: PALETTE.ink,
   },
   headerIconBtn: {
-    backgroundColor: '#E8E0D2',
+    backgroundColor: PALETTE.sand,
     padding: 6,
     borderRadius: 10,
   },

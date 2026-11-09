@@ -11,7 +11,7 @@ import {
 import { ArrowLeft, Star, Edit3, Trash2 } from 'lucide-react-native';
 import { JournalEntry, Language } from '../../types';
 import { ALL_EMOTIONS } from '../../constants/emotions';
-import { PALETTE, PAPER_STYLES } from '../../constants/theme';
+import { PALETTE, PAPER_STYLES, FONTS } from '../../constants/theme';
 import { HapticsService } from '../../services/hapticsService';
 
 interface JournalReaderProps {
@@ -82,7 +82,7 @@ export const JournalReader: React.FC<JournalReaderProps> = ({
               onEdit(entry);
             }}
           >
-            <Edit3 size={15} color={isNight ? PALETTE.nightInk : PALETTE.ink} />
+            <Edit3 size={14} color={isNight ? PALETTE.nightInk : PALETTE.ink} />
             <Text style={[styles.actionBtnText, isNight && { color: PALETTE.nightInk }]}>
               {language === 'id' ? 'Sunting' : 'Edit'}
             </Text>
@@ -100,9 +100,17 @@ export const JournalReader: React.FC<JournalReaderProps> = ({
         </View>
       </View>
 
-      {/* 2. Paper Content Sheet */}
+      {/* 2. Editorial Paper Content Sheet */}
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        <View style={[styles.paperSheet, { backgroundColor: isNight ? PALETTE.nightCard : paper.bg, borderColor: paper.border }]}>
+        <View
+          style={[
+            styles.paperSheet,
+            {
+              backgroundColor: isNight ? PALETTE.nightCard : paper.bg,
+              borderColor: paper.border,
+            },
+          ]}
+        >
           <View style={styles.metaRow}>
             <Text style={styles.dateText}>{dateStr}</Text>
             {emotion && (
@@ -113,10 +121,12 @@ export const JournalReader: React.FC<JournalReaderProps> = ({
             )}
           </View>
 
+          {/* Title in Newsreader SemiBold */}
           <Text style={[styles.title, { color: isNight ? PALETTE.nightInk : paper.text }]}>
             {entry.title}
           </Text>
 
+          {/* Anxiety Unload Circle of Control */}
           {entry.unloadData && (
             <View style={styles.unloadBox}>
               <Text style={styles.unloadTitle}>🍃 {language === 'id' ? 'Dalam Kendaliku:' : 'Within Control:'}</Text>
@@ -124,22 +134,28 @@ export const JournalReader: React.FC<JournalReaderProps> = ({
                 <Text key={idx} style={styles.unloadItem}>• {item}</Text>
               ))}
 
-              <Text style={[styles.unloadTitle, { marginTop: 10, color: '#B85330' }]}>
+              <Text style={[styles.unloadTitle, { marginTop: 10, color: PALETTE.terracotta }]}>
                 ☁️ {language === 'id' ? 'Dilepaskan:' : 'Letting go:'}
               </Text>
               {entry.unloadData.outsideControl.map((item, idx) => (
-                <Text key={idx} style={[styles.unloadItem, { textDecorationLine: 'line-through', opacity: 0.7 }]}>• {item}</Text>
+                <Text key={idx} style={[styles.unloadItem, { textDecorationLine: 'line-through', opacity: 0.7 }]}>
+                  • {item}
+                </Text>
               ))}
             </View>
           )}
 
+          {/* Main Body in Newsreader Regular */}
           <Text style={[styles.body, { color: isNight ? PALETTE.nightInk : paper.text }]}>
             {entry.content}
           </Text>
 
+          {/* Note to Myself in Caveat Handwriting */}
           {entry.affirmationNote && (
             <View style={styles.affirmationBox}>
-              <Text style={styles.affirmationTitle}>💌 {language === 'id' ? 'Pesan untuk Diri Sendiri' : 'Note to Myself'}</Text>
+              <Text style={styles.affirmationTitle}>
+                💌 {language === 'id' ? 'Pesan untuk Diri Sendiri' : 'Note to Myself'}
+              </Text>
               <Text style={styles.affirmationContent}>"{entry.affirmationNote}"</Text>
             </View>
           )}
@@ -151,7 +167,7 @@ export const JournalReader: React.FC<JournalReaderProps> = ({
         <View style={styles.modalOverlay}>
           <View style={[styles.modalCard, isNight && { backgroundColor: PALETTE.nightCard }]}>
             <View style={styles.deleteIconBox}>
-              <Trash2 size={24} color="#B85330" />
+              <Trash2 size={24} color={PALETTE.terracotta} />
             </View>
             <Text style={[styles.modalTitle, isNight && { color: PALETTE.nightInk }]}>
               {language === 'id' ? 'Hapus surat ini?' : 'Delete this letter?'}
@@ -203,13 +219,13 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingVertical: 10,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0,0,0,0.06)',
-    backgroundColor: '#FFFFFF',
+    borderBottomColor: 'rgba(38, 63, 54, 0.06)',
+    backgroundColor: PALETTE.bg,
   },
   nightTopBar: {
-    backgroundColor: PALETTE.nightCard,
+    backgroundColor: PALETTE.nightBg,
     borderBottomColor: PALETTE.nightBorder,
   },
   backBtn: {
@@ -219,7 +235,7 @@ const styles = StyleSheet.create({
   },
   backText: {
     fontSize: 13,
-    fontWeight: '600',
+    fontFamily: FONTS.sansSemiBold,
     color: PALETTE.ink,
   },
   topRight: {
@@ -234,14 +250,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: '#E8E0D2',
-    paddingVertical: 6,
-    paddingHorizontal: 12,
+    backgroundColor: PALETTE.sand,
+    paddingVertical: 5,
+    paddingHorizontal: 11,
     borderRadius: 12,
   },
   actionBtnText: {
     fontSize: 12,
-    fontWeight: '600',
+    fontFamily: FONTS.sansSemiBold,
     color: PALETTE.ink,
   },
   deleteBtn: {
@@ -254,7 +270,7 @@ const styles = StyleSheet.create({
   paperSheet: {
     borderRadius: 24,
     borderWidth: 1,
-    padding: 20,
+    padding: 22,
     shadowColor: '#000',
     shadowOpacity: 0.05,
     shadowRadius: 8,
@@ -264,18 +280,19 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 14,
+    marginBottom: 16,
   },
   dateText: {
     fontSize: 11,
-    fontWeight: '600',
-    color: PALETTE.primary,
+    fontFamily: FONTS.sansBold,
+    color: PALETTE.botanicalHeader,
+    letterSpacing: 0.3,
   },
   moodPill: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 5,
-    backgroundColor: 'rgba(0,0,0,0.04)',
+    backgroundColor: 'rgba(0, 0, 0, 0.04)',
     paddingVertical: 3,
     paddingHorizontal: 8,
     borderRadius: 12,
@@ -286,52 +303,57 @@ const styles = StyleSheet.create({
   },
   moodLabel: {
     fontSize: 11,
-    fontWeight: '600',
+    fontFamily: FONTS.sansMedium,
     color: PALETTE.ink,
   },
   title: {
-    fontSize: 20,
-    fontWeight: '700',
-    marginBottom: 14,
-    lineHeight: 26,
+    fontSize: 22,
+    fontFamily: FONTS.serifSemiBold,
+    marginBottom: 16,
+    lineHeight: 28,
   },
   body: {
-    fontSize: 14,
-    lineHeight: 24,
+    fontSize: 15,
+    fontFamily: FONTS.serifRegular,
+    lineHeight: 26,
   },
   unloadBox: {
-    backgroundColor: 'rgba(0,0,0,0.03)',
-    borderRadius: 12,
-    padding: 12,
-    marginBottom: 14,
+    backgroundColor: 'rgba(0, 0, 0, 0.03)',
+    borderRadius: 14,
+    padding: 14,
+    marginBottom: 16,
   },
   unloadTitle: {
     fontSize: 11,
-    fontWeight: '700',
-    color: PALETTE.primary,
+    fontFamily: FONTS.sansBold,
+    color: PALETTE.botanicalHeader,
     marginBottom: 4,
   },
   unloadItem: {
-    fontSize: 12,
+    fontSize: 13,
+    fontFamily: FONTS.sansRegular,
     color: PALETTE.ink,
-    lineHeight: 18,
+    lineHeight: 20,
   },
   affirmationBox: {
-    marginTop: 20,
-    padding: 12,
-    borderRadius: 12,
+    marginTop: 22,
+    padding: 14,
+    borderRadius: 14,
     backgroundColor: '#FDF3EE',
+    borderWidth: 1,
+    borderColor: '#F6D8CE',
   },
   affirmationTitle: {
     fontSize: 11,
-    fontWeight: '700',
-    color: '#B85330',
+    fontFamily: FONTS.sansBold,
+    color: PALETTE.terracotta,
     marginBottom: 4,
   },
   affirmationContent: {
-    fontSize: 13,
-    fontStyle: 'italic',
-    color: '#B85330',
+    fontSize: 19,
+    fontFamily: FONTS.handwriting,
+    color: PALETTE.terracotta,
+    lineHeight: 24,
   },
   modalOverlay: {
     flex: 1,
@@ -344,7 +366,7 @@ const styles = StyleSheet.create({
     width: '100%',
     backgroundColor: '#FFFFFF',
     borderRadius: 24,
-    padding: 20,
+    padding: 22,
     alignItems: 'center',
     shadowColor: '#000',
     shadowOpacity: 0.15,
@@ -361,17 +383,18 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   modalTitle: {
-    fontSize: 16,
-    fontWeight: '700',
+    fontSize: 17,
+    fontFamily: FONTS.serifSemiBold,
     color: PALETTE.ink,
     marginBottom: 6,
   },
   modalSub: {
     fontSize: 12,
+    fontFamily: FONTS.sansRegular,
     color: PALETTE.inkMuted,
     textAlign: 'center',
     lineHeight: 18,
-    marginBottom: 18,
+    marginBottom: 20,
   },
   modalBtnRow: {
     flexDirection: 'row',
@@ -380,26 +403,26 @@ const styles = StyleSheet.create({
   },
   modalCancelBtn: {
     flex: 1,
-    paddingVertical: 11,
-    borderRadius: 12,
+    paddingVertical: 12,
+    borderRadius: 14,
     backgroundColor: '#F0ECE4',
     alignItems: 'center',
   },
   modalCancelText: {
     fontSize: 12,
-    fontWeight: '600',
+    fontFamily: FONTS.sansSemiBold,
     color: PALETTE.ink,
   },
   modalDeleteBtn: {
     flex: 1,
-    paddingVertical: 11,
-    borderRadius: 12,
-    backgroundColor: '#B85330',
+    paddingVertical: 12,
+    borderRadius: 14,
+    backgroundColor: PALETTE.terracotta,
     alignItems: 'center',
   },
   modalDeleteText: {
     fontSize: 12,
-    fontWeight: '600',
+    fontFamily: FONTS.sansBold,
     color: '#FFFFFF',
   },
 });

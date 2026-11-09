@@ -6,10 +6,10 @@ import {
   ScrollView,
   Image,
 } from 'react-native';
-import { Calendar as CalendarIcon, Sparkles } from 'lucide-react-native';
+import { Sparkles } from 'lucide-react-native';
 import { JournalEntry, Language, MoodCheckIn, MoodType } from '../../types';
 import { ALL_EMOTIONS } from '../../constants/emotions';
-import { PALETTE } from '../../constants/theme';
+import { PALETTE, FONTS } from '../../constants/theme';
 
 interface InsightsViewProps {
   language: Language;
@@ -64,14 +64,14 @@ export const InsightsView: React.FC<InsightsViewProps> = ({
         </View>
 
         <View style={[styles.statCard, isNight && styles.nightCard]}>
-          <Text style={[styles.statNum, { color: '#B85330' }]}>{moods.length}</Text>
+          <Text style={[styles.statNum, { color: PALETTE.terracotta }]}>{moods.length}</Text>
           <Text style={[styles.statLabel, isNight && { color: PALETTE.nightInkMuted }]}>
             {language === 'id' ? 'Cek Emosi' : 'Mood Logs'}
           </Text>
         </View>
 
         <View style={[styles.statCard, isNight && styles.nightCard]}>
-          <Text style={[styles.statNum, { color: '#D4A373' }]}>3</Text>
+          <Text style={[styles.statNum, { color: PALETTE.amberwarm }]}>4</Text>
           <Text style={[styles.statLabel, isNight && { color: PALETTE.nightInkMuted }]}>
             {language === 'id' ? 'Hari Berturut' : 'Day Streak'}
           </Text>
@@ -81,7 +81,7 @@ export const InsightsView: React.FC<InsightsViewProps> = ({
       {/* 2. Top Emotions Overview */}
       <View style={[styles.card, isNight && styles.nightCard]}>
         <View style={styles.cardHeader}>
-          <Sparkles size={16} color="#D4A373" />
+          <Sparkles size={16} color={PALETTE.terracotta} />
           <Text style={[styles.cardTitle, isNight && { color: PALETTE.nightInk }]}>
             {language === 'id' ? 'Emosi Paling Sering Dirasakan' : 'Most Frequent Emotions'}
           </Text>
@@ -126,7 +126,7 @@ export const InsightsView: React.FC<InsightsViewProps> = ({
         </Text>
       </View>
 
-      <View style={{ height: 100 }} />
+      <View style={{ height: 110 }} />
     </ScrollView>
   );
 };
@@ -143,12 +143,13 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   title: {
-    fontSize: 20,
-    fontWeight: '700',
+    fontSize: 22,
+    fontFamily: FONTS.serifSemiBold,
     color: PALETTE.ink,
   },
   subtitle: {
     fontSize: 12,
+    fontFamily: FONTS.sansMedium,
     color: PALETTE.inkMuted,
     marginTop: 2,
   },
@@ -160,11 +161,13 @@ const styles = StyleSheet.create({
   statCard: {
     flex: 1,
     backgroundColor: '#FFFFFF',
-    borderRadius: 18,
+    borderRadius: 20,
     padding: 14,
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: PALETTE.border,
     shadowColor: '#000',
-    shadowOpacity: 0.04,
+    shadowOpacity: 0.03,
     shadowRadius: 6,
     elevation: 2,
   },
@@ -174,24 +177,26 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   statNum: {
-    fontSize: 22,
-    fontWeight: '800',
-    color: PALETTE.primary,
+    fontSize: 24,
+    fontFamily: FONTS.serifSemiBold,
+    color: PALETTE.botanicalHeader,
   },
   statLabel: {
     fontSize: 10,
+    fontFamily: FONTS.sansBold,
     color: PALETTE.inkMuted,
-    fontWeight: '600',
     marginTop: 2,
     textAlign: 'center',
   },
   card: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    padding: 16,
+    borderRadius: 22,
+    padding: 18,
     marginBottom: 16,
+    borderWidth: 1,
+    borderColor: PALETTE.border,
     shadowColor: '#000',
-    shadowOpacity: 0.04,
+    shadowOpacity: 0.03,
     shadowRadius: 6,
     elevation: 2,
   },
@@ -203,7 +208,7 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     fontSize: 13,
-    fontWeight: '700',
+    fontFamily: FONTS.sansBold,
     color: PALETTE.ink,
   },
   moodList: {
@@ -213,7 +218,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 6,
+    paddingVertical: 8,
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(0,0,0,0.04)',
   },
@@ -228,26 +233,26 @@ const styles = StyleSheet.create({
   },
   moodStatName: {
     fontSize: 13,
-    fontWeight: '600',
+    fontFamily: FONTS.sansSemiBold,
     color: PALETTE.ink,
   },
   countBadge: {
-    backgroundColor: '#E8E0D2',
+    backgroundColor: PALETTE.sand,
     paddingVertical: 3,
     paddingHorizontal: 8,
     borderRadius: 10,
   },
   countText: {
     fontSize: 11,
-    fontWeight: '700',
+    fontFamily: FONTS.sansBold,
     color: PALETTE.ink,
   },
   quoteCard: {
     backgroundColor: '#FAF5EE',
     borderWidth: 1,
     borderColor: '#EFE7DA',
-    borderRadius: 20,
-    padding: 16,
+    borderRadius: 22,
+    padding: 18,
   },
   nightQuoteCard: {
     backgroundColor: '#1E2B25',
@@ -255,18 +260,19 @@ const styles = StyleSheet.create({
   },
   quoteTitle: {
     fontSize: 11,
-    fontWeight: '700',
-    color: PALETTE.primary,
+    fontFamily: FONTS.sansBold,
+    color: PALETTE.botanicalHeader,
     marginBottom: 6,
   },
   quoteBody: {
-    fontSize: 12,
-    lineHeight: 18,
+    fontSize: 13,
+    lineHeight: 20,
+    fontFamily: FONTS.serifItalic,
     color: PALETTE.inkSecondary,
-    fontStyle: 'italic',
   },
   emptyText: {
     fontSize: 12,
+    fontFamily: FONTS.sansRegular,
     color: PALETTE.inkMuted,
     textAlign: 'center',
     paddingVertical: 12,

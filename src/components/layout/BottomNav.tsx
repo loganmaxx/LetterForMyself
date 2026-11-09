@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Home, BookOpen, Plus, BarChart3, Wind } from 'lucide-react-native';
 import { Language, MainView } from '../../types';
-import { PALETTE } from '../../constants/theme';
+import { PALETTE, FONTS } from '../../constants/theme';
 import { HapticsService } from '../../services/hapticsService';
 
 interface BottomNavProps {
@@ -33,7 +33,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({
   return (
     <View style={styles.dockContainer}>
       <View style={[styles.dock, isNight && styles.nightDock]}>
-        {tabs.map((tab, idx) => {
+        {tabs.map((tab) => {
           if (tab.isAction) {
             return (
               <TouchableOpacity
@@ -45,7 +45,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({
                 }}
                 activeOpacity={0.85}
               >
-                <Plus size={24} color="#FFFFFF" />
+                <Plus size={24} color="#FFFFFF" strokeWidth={2.5} />
               </TouchableOpacity>
             );
           }
@@ -69,7 +69,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({
                   isActive
                     ? '#FFFFFF'
                     : isNight
-                    ? 'rgba(255, 255, 255, 0.5)'
+                    ? 'rgba(255, 255, 255, 0.45)'
                     : 'rgba(255, 255, 255, 0.65)'
                 }
               />
@@ -77,7 +77,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({
                 style={[
                   styles.tabLabel,
                   isActive && styles.tabLabelActive,
-                  isNight && !isActive && { color: 'rgba(255, 255, 255, 0.5)' },
+                  isNight && !isActive && { color: 'rgba(255, 255, 255, 0.45)' },
                 ]}
               >
                 {tab.label}
@@ -108,9 +108,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     width: '100%',
     maxWidth: 420,
-    shadowColor: '#000',
-    shadowOpacity: 0.18,
-    shadowRadius: 12,
+    shadowColor: '#172722',
+    shadowOpacity: 0.28,
+    shadowRadius: 14,
     elevation: 8,
   },
   nightDock: {
@@ -127,22 +127,22 @@ const styles = StyleSheet.create({
   },
   tabLabel: {
     fontSize: 9,
-    fontWeight: '500',
+    fontFamily: FONTS.sansMedium,
     color: 'rgba(255, 255, 255, 0.65)',
     marginTop: 3,
   },
   tabLabelActive: {
     color: '#FFFFFF',
-    fontWeight: '700',
+    fontFamily: FONTS.sansBold,
   },
   actionBtn: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: '#B85330',
+    width: 46,
+    height: 46,
+    borderRadius: 23,
+    backgroundColor: PALETTE.terracotta,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#B85330',
+    shadowColor: PALETTE.terracotta,
     shadowOpacity: 0.4,
     shadowRadius: 8,
     elevation: 4,

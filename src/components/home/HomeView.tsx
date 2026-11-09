@@ -10,7 +10,7 @@ import {
 import { Sparkles, ArrowRight, HeartHandshake } from 'lucide-react-native';
 import { JournalEntry, Language, MoodCheckIn, MoodType, TemplateType } from '../../types';
 import { ALL_EMOTIONS, PRIMARY_HOME_EMOTIONS } from '../../constants/emotions';
-import { PALETTE } from '../../constants/theme';
+import { PALETTE, FONTS } from '../../constants/theme';
 import { HapticsService } from '../../services/hapticsService';
 
 interface HomeViewProps {
@@ -40,12 +40,12 @@ export const HomeView: React.FC<HomeViewProps> = ({
   const currentHour = new Date().getHours();
   const greeting =
     currentHour < 11
-      ? language === 'id' ? 'Selamat Pagi' : 'Good Morning'
+      ? language === 'id' ? 'Selamat pagi' : 'Good morning'
       : currentHour < 15
-      ? language === 'id' ? 'Selamat Siang' : 'Good Afternoon'
+      ? language === 'id' ? 'Selamat siang' : 'Good afternoon'
       : currentHour < 18
-      ? language === 'id' ? 'Selamat Sore' : 'Good Evening'
-      : language === 'id' ? 'Selamat Malam' : 'Cozy Night';
+      ? language === 'id' ? 'Selamat sore' : 'Good evening'
+      : language === 'id' ? 'Selamat malam' : 'Quiet night';
 
   const todayIso = new Date().toISOString().split('T')[0];
   const todayMood = moods.find((m) => m.timestamp.startsWith(todayIso));
@@ -53,39 +53,55 @@ export const HomeView: React.FC<HomeViewProps> = ({
     ? ALL_EMOTIONS.find((e) => e.id === todayMood.mood)
     : null;
 
+  const dateStr = new Date().toLocaleDateString(
+    language === 'id' ? 'id-ID' : 'en-US',
+    { weekday: 'long', month: 'short', day: 'numeric' }
+  );
+
   return (
     <ScrollView
       style={[styles.container, isNight && { backgroundColor: PALETTE.nightBg }]}
       contentContainerStyle={styles.content}
       showsVerticalScrollIndicator={false}
     >
-      {/* 1. Sanctuary Greeting Header */}
-      <View style={styles.greetingSection}>
-        <View style={styles.greetingRow}>
-          <View>
-            <Text style={[styles.greetingSub, isNight && { color: PALETTE.nightInkMuted }]}>
-              {language === 'id' ? 'Ruang Tenang Jiwa' : 'Sanctuary for your thoughts'}
-            </Text>
-            <Text style={[styles.greetingTitle, isNight && { color: PALETTE.nightInk }]}>
-              {greeting}, Traveler ✨
+      {/* 1. Botanical Forest Hero Banner (Identical to Web Sanctuary) */}
+      <View style={[styles.heroBanner, isNight && styles.nightHeroBanner]}>
+        <View style={styles.heroTopRow}>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.heroDate}>{dateStr.toUpperCase()}</Text>
+            <Text style={styles.heroGreeting}>
+              {greeting},{' '}
+              <Text style={styles.heroName}>Traveler</Text>.
             </Text>
           </View>
 
           {todayEmotionMeta && (
-            <View style={[styles.todayMoodBadge, isNight && { backgroundColor: PALETTE.nightCardSecondary }]}>
-              <Image source={todayEmotionMeta.image} style={styles.todayMoodImg} resizeMode="contain" />
-              <Text style={[styles.todayMoodText, isNight && { color: PALETTE.nightInk }]}>
-                {todayEmotionMeta.label[language]}
-              </Text>
-            </View>
+            <TouchableOpacity
+              style={styles.heroMoodBadge}
+              onPress={() => {
+                HapticsService.light();
+                onOpenAllMoods();
+              }}
+              activeOpacity={0.8}
+            >
+              <Image source={todayEmotionMeta.image} style={styles.heroMoodImg} resizeMode="contain" />
+              <Text style={styles.heroMoodText}>{todayEmotionMeta.label[language]}</Text>
+            </TouchableOpacity>
           )}
         </View>
+
+        <View style={styles.heroDivider} />
+        <Text style={styles.heroQuote}>
+          {language === 'id'
+            ? '“Kamu tidak harus terburu-buru. Tumbuhlah dengan akar yang tenang.”'
+            : '“You do not have to rush. Grow with steady and calm roots.”'}
+        </Text>
       </View>
 
-      {/* 2. Slim 3D Mood Bar */}
-      <View style={[styles.card, isNight && styles.nightCard]}>
-        <View style={styles.cardHeader}>
-          <Text style={[styles.cardTitle, isNight && { color: PALETTE.nightInk }]}>
+      {/* 2. Slim 3D Mood Bar (Warm Sand Container) */}
+      <View style={[styles.moodSection, isNight && styles.nightCard]}>
+        <View style={styles.sectionHeader}>
+          <Text style={[styles.sectionTitle, isNight && { color: PALETTE.nightInk }]}>
             {language === 'id' ? 'Cuaca hatimu saat ini' : 'Inner Weather Right Now'}
           </Text>
           <TouchableOpacity
@@ -140,7 +156,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
       {/* 3. Today's Mindful Reflection Card */}
       <View style={[styles.promptCard, isNight && styles.nightPromptCard]}>
         <View style={styles.promptHeader}>
-          <Sparkles size={16} color="#B85330" />
+          <Sparkles size={15} color={PALETTE.terracotta} />
           <Text style={styles.promptCategory}>
             {language === 'id' ? 'REFLEKSI HARI INI' : 'TODAYS REFLECTION'}
           </Text>
@@ -183,17 +199,18 @@ export const HomeView: React.FC<HomeViewProps> = ({
             }}
           >
             <Text style={styles.linkText}>
-              {language === 'id' ? 'Lihat Semua' : 'View Shelf'}
+              {language === 'id' ? 'Buka Rak Buku' : 'View Shelf'}
             </Text>
           </TouchableOpacity>
         </View>
 
         {journals.slice(0, 3).map((entry) => {
           const emotion = ALL_EMOTIONS.find((e) => e.id === entry.mood);
-          const dateStr = new Date(entry.createdAt).toLocaleDateString(
-            language === 'id' ? 'id-ID' : 'en-US',
-            { day: 'numeric', month: 'short' }
-          );
+          const d = new Date(entry.createdAt);
+          const dayNum = d.getDate().toString().padStart(2, '0');
+          const monthShort = d
+            .toLocaleDateString(language === 'id' ? 'id-ID' : 'en-US', { month: 'short' })
+            .toUpperCase();
 
           return (
             <TouchableOpacity
@@ -203,14 +220,19 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 HapticsService.light();
                 onOpenReader(entry);
               }}
-              activeOpacity={0.8}
+              activeOpacity={0.85}
             >
               <View style={styles.entryHeader}>
                 <View style={styles.dateBadge}>
-                  <Text style={styles.dateText}>{dateStr}</Text>
+                  <Text style={styles.dateBadgeText}>{dayNum} {monthShort}</Text>
                 </View>
                 {emotion && (
-                  <Image source={emotion.image} style={styles.entryMoodImg} resizeMode="contain" />
+                  <View style={styles.entryMoodPill}>
+                    <Image source={emotion.image} style={styles.entryMoodImg} resizeMode="contain" />
+                    <Text style={[styles.entryMoodLabel, isNight && { color: PALETTE.nightInkSecondary }]}>
+                      {emotion.label[language]}
+                    </Text>
+                  </View>
                 )}
               </View>
 
@@ -222,10 +244,10 @@ export const HomeView: React.FC<HomeViewProps> = ({
               </Text>
 
               {entry.affirmationNote && (
-                <View style={styles.affirmationBox}>
-                  <HeartHandshake size={12} color="#B85330" />
+                <View style={[styles.affirmationBox, isNight && { backgroundColor: PALETTE.nightCardSecondary }]}>
+                  <HeartHandshake size={14} color={PALETTE.terracotta} />
                   <Text style={styles.affirmationText} numberOfLines={1}>
-                    {entry.affirmationNote}
+                    "{entry.affirmationNote}"
                   </Text>
                 </View>
               )}
@@ -234,8 +256,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
         })}
       </View>
 
-      {/* Bottom spacer for floating navigation dock */}
-      <View style={{ height: 100 }} />
+      <View style={{ height: 110 }} />
     </ScrollView>
   );
 };
@@ -247,95 +268,115 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 16,
-    paddingTop: 12,
+    paddingTop: 8,
   },
-  greetingSection: {
+  heroBanner: {
+    backgroundColor: PALETTE.botanicalHeader,
+    borderRadius: 26,
+    padding: 20,
     marginBottom: 16,
+    shadowColor: '#172722',
+    shadowOpacity: 0.18,
+    shadowRadius: 10,
+    elevation: 4,
   },
-  greetingRow: {
+  nightHeroBanner: {
+    backgroundColor: PALETTE.nightBotanical,
+    borderWidth: 1,
+    borderColor: PALETTE.nightBorder,
+  },
+  heroTopRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'flex-start',
   },
-  greetingSub: {
-    fontSize: 12,
-    color: PALETTE.inkMuted,
-    fontWeight: '500',
+  heroDate: {
+    fontSize: 10,
+    fontFamily: FONTS.sansBold,
+    color: '#A3C4B6',
+    letterSpacing: 1.8,
+    marginBottom: 4,
   },
-  greetingTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: PALETTE.ink,
-    marginTop: 2,
+  heroGreeting: {
+    fontSize: 24,
+    fontFamily: FONTS.serifRegular,
+    color: '#F2ECE1',
+    letterSpacing: -0.3,
   },
-  todayMoodBadge: {
+  heroName: {
+    fontFamily: FONTS.serifItalic,
+    color: '#F5D089',
+  },
+  heroMoodBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(255, 255, 255, 0.12)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.16)',
     paddingVertical: 5,
     paddingHorizontal: 10,
-    borderRadius: 20,
-    shadowColor: '#000',
-    shadowOpacity: 0.05,
-    shadowRadius: 5,
-    elevation: 2,
+    borderRadius: 16,
+    gap: 6,
   },
-  todayMoodImg: {
-    width: 22,
-    height: 22,
-    marginRight: 6,
+  heroMoodImg: {
+    width: 24,
+    height: 24,
   },
-  todayMoodText: {
+  heroMoodText: {
     fontSize: 11,
-    fontWeight: '600',
-    color: PALETTE.primary,
+    fontFamily: FONTS.sansMedium,
+    color: '#F2ECE1',
   },
-  card: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 20,
+  heroDivider: {
+    height: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.12)',
+    marginVertical: 12,
+  },
+  heroQuote: {
+    fontSize: 12,
+    fontFamily: FONTS.serifItalic,
+    color: 'rgba(242, 236, 225, 0.85)',
+    lineHeight: 18,
+  },
+  moodSection: {
+    backgroundColor: PALETTE.sand,
+    borderRadius: 22,
     padding: 14,
     marginBottom: 16,
-    shadowColor: '#000',
-    shadowOpacity: 0.04,
-    shadowRadius: 6,
-    elevation: 2,
-  },
-  nightCard: {
-    backgroundColor: PALETTE.nightCard,
-    borderColor: PALETTE.nightBorder,
     borderWidth: 1,
+    borderColor: 'rgba(38, 63, 54, 0.06)',
   },
-  cardHeader: {
+  sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: 10,
   },
-  cardTitle: {
+  sectionTitle: {
     fontSize: 13,
-    fontWeight: '600',
+    fontFamily: FONTS.sansBold,
     color: PALETTE.ink,
   },
   linkText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: PALETTE.primary,
+    fontSize: 11,
+    fontFamily: FONTS.sansBold,
+    color: PALETTE.botanicalHeader,
   },
   moodScroll: {
     gap: 8,
   },
   moodItem: {
     alignItems: 'center',
-    backgroundColor: '#F7F4EE',
+    backgroundColor: 'rgba(255, 255, 255, 0.65)',
     paddingVertical: 8,
-    paddingHorizontal: 12,
+    paddingHorizontal: 10,
     borderRadius: 16,
     minWidth: 64,
   },
   moodItemSelected: {
-    backgroundColor: '#DDE9E2',
+    backgroundColor: '#FFFFFF',
     borderWidth: 1.5,
-    borderColor: PALETTE.primary,
+    borderColor: PALETTE.botanicalHeader,
   },
   moodImg: {
     width: 38,
@@ -344,23 +385,23 @@ const styles = StyleSheet.create({
   },
   moodLabel: {
     fontSize: 10,
-    fontWeight: '500',
+    fontFamily: FONTS.sansMedium,
     color: PALETTE.inkSecondary,
   },
   moodLabelSelected: {
-    fontWeight: '700',
-    color: PALETTE.primary,
+    fontFamily: FONTS.sansBold,
+    color: PALETTE.botanicalHeader,
   },
   promptCard: {
     backgroundColor: '#FAF5EE',
     borderColor: '#EFE7DA',
     borderWidth: 1,
-    borderRadius: 20,
-    padding: 16,
+    borderRadius: 22,
+    padding: 18,
     marginBottom: 16,
   },
   nightPromptCard: {
-    backgroundColor: '#1E2B25',
+    backgroundColor: '#1C2722',
     borderColor: PALETTE.nightBorder,
   },
   promptHeader: {
@@ -371,102 +412,110 @@ const styles = StyleSheet.create({
   },
   promptCategory: {
     fontSize: 10,
-    fontWeight: '700',
-    color: '#B85330',
-    letterSpacing: 0.8,
+    fontFamily: FONTS.sansBold,
+    color: PALETTE.terracotta,
+    letterSpacing: 1.2,
   },
   promptQuestion: {
-    fontSize: 14,
-    fontWeight: '600',
+    fontSize: 16,
+    fontFamily: FONTS.serifMedium,
     color: PALETTE.ink,
-    lineHeight: 20,
-    marginBottom: 12,
+    lineHeight: 22,
+    marginBottom: 14,
   },
   promptBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 6,
-    backgroundColor: PALETTE.primary,
+    backgroundColor: PALETTE.botanicalHeader,
     paddingVertical: 9,
     paddingHorizontal: 16,
-    borderRadius: 12,
+    borderRadius: 14,
     alignSelf: 'flex-start',
   },
   promptBtnText: {
     color: '#FFFFFF',
     fontSize: 12,
-    fontWeight: '600',
+    fontFamily: FONTS.sansSemiBold,
   },
   recentSection: {
     marginTop: 4,
   },
-  sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  sectionTitle: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: PALETTE.ink,
-  },
   entryCard: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 14,
-    marginBottom: 10,
+    borderRadius: 20,
+    padding: 16,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: PALETTE.border,
     shadowColor: '#000',
     shadowOpacity: 0.03,
-    shadowRadius: 4,
+    shadowRadius: 6,
     elevation: 1,
+  },
+  nightCard: {
+    backgroundColor: PALETTE.nightCard,
+    borderColor: PALETTE.nightBorder,
+    borderWidth: 1,
   },
   entryHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 6,
+    marginBottom: 8,
   },
   dateBadge: {
     backgroundColor: '#263F36',
-    paddingVertical: 2,
+    paddingVertical: 3,
     paddingHorizontal: 8,
     borderRadius: 6,
   },
-  dateText: {
+  dateBadgeText: {
     color: '#FFFFFF',
-    fontSize: 10,
-    fontWeight: '700',
+    fontSize: 9,
+    fontFamily: FONTS.sansBold,
+    letterSpacing: 0.5,
+  },
+  entryMoodPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
   },
   entryMoodImg: {
-    width: 24,
-    height: 24,
+    width: 20,
+    height: 20,
+  },
+  entryMoodLabel: {
+    fontSize: 10,
+    fontFamily: FONTS.sansMedium,
+    color: PALETTE.inkMuted,
   },
   entryTitle: {
-    fontSize: 14,
-    fontWeight: '700',
+    fontSize: 17,
+    fontFamily: FONTS.serifSemiBold,
     color: PALETTE.ink,
     marginBottom: 4,
   },
   entrySnippet: {
-    fontSize: 12,
+    fontSize: 13,
+    fontFamily: FONTS.sansRegular,
     color: PALETTE.inkSecondary,
-    lineHeight: 18,
+    lineHeight: 19,
   },
   affirmationBox: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 5,
-    marginTop: 8,
+    gap: 6,
+    marginTop: 10,
     backgroundColor: '#FDF3EE',
-    paddingVertical: 4,
-    paddingHorizontal: 8,
-    borderRadius: 8,
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    borderRadius: 10,
   },
   affirmationText: {
-    fontSize: 11,
-    color: '#B85330',
-    fontStyle: 'italic',
+    fontSize: 16,
+    fontFamily: FONTS.handwriting,
+    color: PALETTE.terracotta,
   },
 });

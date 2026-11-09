@@ -10,10 +10,10 @@ import {
   Platform,
   Image,
 } from 'react-native';
-import { ArrowLeft, Check, Star, Lock } from 'lucide-react-native';
+import { ArrowLeft, Check, Star, Lock, Palette } from 'lucide-react-native';
 import { JournalEntry, Language, MoodType, PaperTheme, TemplateType } from '../../types';
 import { ALL_EMOTIONS } from '../../constants/emotions';
-import { PALETTE, PAPER_STYLES } from '../../constants/theme';
+import { PALETTE, PAPER_STYLES, FONTS } from '../../constants/theme';
 import { HapticsService } from '../../services/hapticsService';
 
 interface JournalStudioProps {
@@ -38,13 +38,16 @@ export const JournalStudio: React.FC<JournalStudioProps> = ({
   const isNight = nightMode;
   const [title, setTitle] = useState(editingEntry?.title || '');
   const [content, setContent] = useState(editingEntry?.content || '');
+  const [affirmationNote, setAffirmationNote] = useState(editingEntry?.affirmationNote || '');
   const [template, setTemplate] = useState<TemplateType>(editingEntry?.template || initialTemplate);
   const [mood, setMood] = useState<MoodType>(editingEntry?.mood || 'peaceful');
-  const [paperTheme, setPaperTheme] = useState<PaperTheme>(editingEntry?.paperTheme || (isNight ? 'midnight' : 'parchment'));
+  const [paperTheme, setPaperTheme] = useState<PaperTheme>(
+    editingEntry?.paperTheme || (isNight ? 'midnight' : 'parchment')
+  );
   const [isFavorite, setIsFavorite] = useState(editingEntry?.isFavorite || false);
   const [draftSaved, setDraftSaved] = useState(false);
 
-  // Auto-save draft visual feedback
+  // Auto-save draft feedback
   useEffect(() => {
     if (content.length > 5) {
       setDraftSaved(true);
@@ -73,6 +76,7 @@ export const JournalStudio: React.FC<JournalStudioProps> = ({
       energyLevel: 4,
       tags: [],
       promptUsed: initialPrompt,
+      affirmationNote: affirmationNote.trim() || undefined,
       isFavorite,
     });
   };
@@ -84,7 +88,7 @@ export const JournalStudio: React.FC<JournalStudioProps> = ({
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       style={[styles.container, isNight && { backgroundColor: PALETTE.nightBg }]}
     >
-      {/* 1. Header Toolbar */}
+      {/* 1. Header Toolbar (Save button permanently pinned & solid) */}
       <View style={[styles.topBar, isNight && styles.nightTopBar]}>
         <View style={styles.topLeft}>
           <TouchableOpacity
@@ -104,7 +108,7 @@ export const JournalStudio: React.FC<JournalStudioProps> = ({
             <View style={styles.draftBadge}>
               <Check size={11} color="#263F36" />
               <Text style={styles.draftText}>
-                {language === 'id' ? 'Draft tersimpan' : 'Draft saved'}
+                {language === 'id' ? 'Tersimpan' : 'Saved'}
               </Text>
             </View>
           )}
@@ -125,7 +129,7 @@ export const JournalStudio: React.FC<JournalStudioProps> = ({
             />
           </TouchableOpacity>
 
-          {/* Primary Save Button - Permanently Visible and Solid */}
+          {/* Primary Save Button */}
           <TouchableOpacity
             style={[
               styles.saveBtn,
@@ -149,39 +153,44 @@ export const JournalStudio: React.FC<JournalStudioProps> = ({
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        {/* 2. Template Selector Tabs */}
-        <View style={styles.templateScroll}>
-          {[
-            { id: 'freeflow' as TemplateType, label: language === 'id' ? '🪶 Jurnal Bebas' : '🪶 Free Journal' },
-            { id: 'capsule' as TemplateType, label: language === 'id' ? '💌 Kapsul Waktu' : '💌 Time Capsule' },
-            { id: 'unload' as TemplateType, label: language === 'id' ? '🍃 Lepaskan Beban' : '🍃 Unload' },
-          ].map((t) => {
-            const isSelected = template === t.id;
-            return (
-              <TouchableOpacity
-                key={t.id}
-                style={[
-                  styles.templatePill,
-                  isSelected && styles.templatePillActive,
-                  isNight && { backgroundColor: isSelected ? PALETTE.primary : PALETTE.nightCard },
-                ]}
-                onPress={() => {
-                  HapticsService.selection();
-                  setTemplate(t.id);
-                }}
-              >
-                <Text
+        {/* 2. Unified Segmented Mode Switcher */}
+        <View style={styles.templateSwitcherWrapper}>
+          <View style={[styles.templateSwitcher, isNight && styles.nightTemplateSwitcher]}>
+            {[
+              { id: 'freeflow' as TemplateType, icon: '🪶', label: language === 'id' ? 'Jurnal' : 'Journal' },
+              { id: 'capsule' as TemplateType, icon: '💌', label: language === 'id' ? 'Kapsul' : 'Capsule' },
+              { id: 'cbt' as TemplateType, icon: '🌱', label: 'CBT' },
+              { id: 'unload' as TemplateType, icon: '🍃', label: language === 'id' ? 'Lepas Beban' : 'Unload' },
+            ].map((t) => {
+              const isSelected = template === t.id;
+              return (
+                <TouchableOpacity
+                  key={t.id}
                   style={[
-                    styles.templateText,
-                    isSelected && styles.templateTextActive,
-                    isNight && !isSelected && { color: PALETTE.nightInkSecondary },
+                    styles.templateTab,
+                    isSelected && styles.templateTabActive,
+                    isSelected && isNight && { backgroundColor: PALETTE.nightCardSecondary },
                   ]}
+                  onPress={() => {
+                    HapticsService.selection();
+                    setTemplate(t.id);
+                  }}
+                  activeOpacity={0.7}
                 >
-                  {t.label}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
+                  <Text style={styles.templateTabIcon}>{t.icon}</Text>
+                  <Text
+                    style={[
+                      styles.templateTabText,
+                      isSelected && styles.templateTabTextActive,
+                      isNight && !isSelected && { color: PALETTE.nightInkSecondary },
+                    ]}
+                  >
+                    {t.label}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
         </View>
 
         {/* 3. 3D Mood Character Picker Bar */}
@@ -195,14 +204,24 @@ export const JournalStudio: React.FC<JournalStudioProps> = ({
               return (
                 <TouchableOpacity
                   key={emo.id}
-                  style={[styles.moodChip, isSelected && styles.moodChipActive]}
+                  style={[
+                    styles.moodChip,
+                    isSelected && styles.moodChipActive,
+                    isNight && { backgroundColor: isSelected ? 'rgba(75, 123, 107, 0.4)' : PALETTE.nightCardSecondary },
+                  ]}
                   onPress={() => {
                     HapticsService.selection();
                     setMood(emo.id);
                   }}
                 >
                   <Image source={emo.image} style={styles.moodChipImg} resizeMode="contain" />
-                  <Text style={[styles.moodChipLabel, isSelected && styles.moodChipLabelActive]}>
+                  <Text
+                    style={[
+                      styles.moodChipLabel,
+                      isSelected && styles.moodChipLabelActive,
+                      isNight && !isSelected && { color: PALETTE.nightInkSecondary },
+                    ]}
+                  >
                     {emo.label[language]}
                   </Text>
                 </TouchableOpacity>
@@ -211,15 +230,23 @@ export const JournalStudio: React.FC<JournalStudioProps> = ({
           </ScrollView>
         </View>
 
-        {/* 4. Tactile Paper Canvas */}
-        <View style={[styles.paperCanvas, { backgroundColor: isNight ? PALETTE.nightCard : currentPaper.bg, borderColor: currentPaper.border }]}>
+        {/* 4. Tactile Editorial Paper Sheet */}
+        <View
+          style={[
+            styles.paperCanvas,
+            {
+              backgroundColor: isNight ? PALETTE.nightCard : currentPaper.bg,
+              borderColor: currentPaper.border,
+            },
+          ]}
+        >
           {initialPrompt ? (
             <View style={styles.promptBanner}>
               <Text style={styles.promptBannerText}>{initialPrompt}</Text>
             </View>
           ) : null}
 
-          {/* Title Input */}
+          {/* Title Input in Editorial Serif */}
           <TextInput
             style={[styles.titleInput, { color: isNight ? PALETTE.nightInk : currentPaper.text }]}
             placeholder={language === 'id' ? 'Judul catatan hatimu...' : 'Title of your reflection...'}
@@ -231,7 +258,7 @@ export const JournalStudio: React.FC<JournalStudioProps> = ({
 
           <View style={styles.divider} />
 
-          {/* Content Multi-line Input */}
+          {/* Content Multi-line Input in Editorial Serif */}
           <TextInput
             style={[styles.contentInput, { color: isNight ? PALETTE.nightInk : currentPaper.text }]}
             placeholder={
@@ -245,6 +272,20 @@ export const JournalStudio: React.FC<JournalStudioProps> = ({
             multiline
             textAlignVertical="top"
           />
+
+          {/* Affirmation Note to Self in Caveat Handwriting */}
+          <View style={styles.affirmationInputBox}>
+            <Text style={styles.affirmationInputLabel}>
+              💌 {language === 'id' ? 'Pesan untuk Diri Sendiri (Tulisan Tangan):' : 'Note to Myself:'}
+            </Text>
+            <TextInput
+              style={[styles.affirmationInput, { color: isNight ? '#F5D089' : PALETTE.terracotta }]}
+              placeholder={language === 'id' ? 'Tuliskan kata hangat untukmu...' : 'A kind whisper to self...'}
+              placeholderTextColor={isNight ? PALETTE.nightInkMuted : PALETTE.inkMuted}
+              value={affirmationNote}
+              onChangeText={setAffirmationNote}
+            />
+          </View>
         </View>
 
         {/* 5. Mobile Quick Bottom Save */}
@@ -272,13 +313,13 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingVertical: 10,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0,0,0,0.06)',
-    backgroundColor: '#FFFFFF',
+    borderBottomColor: 'rgba(38, 63, 54, 0.06)',
+    backgroundColor: PALETTE.bg,
   },
   nightTopBar: {
-    backgroundColor: PALETTE.nightCard,
+    backgroundColor: PALETTE.nightBg,
     borderBottomColor: PALETTE.nightBorder,
   },
   topLeft: {
@@ -291,26 +332,25 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 4,
     paddingVertical: 4,
-    paddingHorizontal: 8,
-    borderRadius: 8,
+    paddingHorizontal: 6,
   },
   backText: {
     fontSize: 13,
-    fontWeight: '600',
+    fontFamily: FONTS.sansSemiBold,
     color: PALETTE.ink,
   },
   draftBadge: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: '#DDE9E2',
+    backgroundColor: '#DCE8E2',
     paddingVertical: 3,
     paddingHorizontal: 8,
     borderRadius: 12,
   },
   draftText: {
     fontSize: 10,
-    fontWeight: '600',
+    fontFamily: FONTS.sansBold,
     color: '#263F36',
   },
   topRight: {
@@ -320,61 +360,83 @@ const styles = StyleSheet.create({
   },
   iconBtn: {
     padding: 6,
-    borderRadius: 8,
   },
   saveBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: PALETTE.primary,
+    backgroundColor: PALETTE.botanicalHeader,
     paddingVertical: 8,
     paddingHorizontal: 16,
     borderRadius: 16,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
+    shadowColor: '#263F36',
+    shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 2,
   },
   saveBtnText: {
     color: '#FFFFFF',
     fontSize: 12,
-    fontWeight: '700',
+    fontFamily: FONTS.sansBold,
   },
   scrollContent: {
     padding: 16,
   },
-  templateScroll: {
-    flexDirection: 'row',
-    gap: 8,
+  templateSwitcherWrapper: {
+    alignItems: 'center',
     marginBottom: 14,
   },
-  templatePill: {
-    paddingVertical: 7,
+  templateSwitcher: {
+    flexDirection: 'row',
+    backgroundColor: 'rgba(232, 224, 210, 0.7)',
+    borderRadius: 24,
+    padding: 3,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.8)',
+  },
+  nightTemplateSwitcher: {
+    backgroundColor: PALETTE.nightCard,
+    borderColor: PALETTE.nightBorder,
+  },
+  templateTab: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingVertical: 6,
     paddingHorizontal: 12,
-    backgroundColor: '#E8E0D2',
-    borderRadius: 16,
+    borderRadius: 20,
   },
-  templatePillActive: {
-    backgroundColor: PALETTE.primary,
+  templateTabActive: {
+    backgroundColor: '#FFFFFF',
+    shadowColor: '#000',
+    shadowOpacity: 0.06,
+    shadowRadius: 3,
+    elevation: 1,
   },
-  templateText: {
+  templateTabIcon: {
+    fontSize: 12,
+  },
+  templateTabText: {
     fontSize: 11,
-    fontWeight: '600',
-    color: PALETTE.ink,
+    fontFamily: FONTS.sansMedium,
+    color: PALETTE.inkSecondary,
   },
-  templateTextActive: {
-    color: '#FFFFFF',
+  templateTabTextActive: {
+    fontFamily: FONTS.sansBold,
+    color: PALETTE.ink,
   },
   moodPickerSection: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 16,
+    borderRadius: 18,
     padding: 12,
     marginBottom: 14,
+    borderWidth: 1,
+    borderColor: PALETTE.border,
   },
   sectionSubtitle: {
     fontSize: 9,
-    fontWeight: '700',
+    fontFamily: FONTS.sansBold,
     color: PALETTE.inkMuted,
-    letterSpacing: 0.6,
+    letterSpacing: 0.8,
     marginBottom: 8,
   },
   moodRow: {
@@ -385,12 +447,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#F7F4EE',
     paddingVertical: 6,
     paddingHorizontal: 10,
-    borderRadius: 12,
+    borderRadius: 14,
   },
   moodChipActive: {
-    backgroundColor: '#DDE9E2',
+    backgroundColor: '#DCE8E2',
     borderWidth: 1.5,
-    borderColor: PALETTE.primary,
+    borderColor: PALETTE.botanicalHeader,
   },
   moodChipImg: {
     width: 28,
@@ -399,38 +461,38 @@ const styles = StyleSheet.create({
   },
   moodChipLabel: {
     fontSize: 9,
-    fontWeight: '500',
+    fontFamily: FONTS.sansMedium,
     color: PALETTE.inkSecondary,
   },
   moodChipLabelActive: {
-    fontWeight: '700',
-    color: PALETTE.primary,
+    fontFamily: FONTS.sansBold,
+    color: PALETTE.botanicalHeader,
   },
   paperCanvas: {
-    borderRadius: 20,
+    borderRadius: 22,
     borderWidth: 1,
-    padding: 16,
+    padding: 18,
     minHeight: 280,
     shadowColor: '#000',
     shadowOpacity: 0.04,
-    shadowRadius: 6,
+    shadowRadius: 8,
     elevation: 2,
   },
   promptBanner: {
     backgroundColor: '#FDF3EE',
     padding: 10,
-    borderRadius: 10,
+    borderRadius: 12,
     marginBottom: 12,
   },
   promptBannerText: {
-    fontSize: 12,
-    color: '#B85330',
-    fontStyle: 'italic',
+    fontSize: 13,
+    fontFamily: FONTS.serifItalic,
+    color: PALETTE.terracotta,
   },
   titleInput: {
-    fontSize: 18,
-    fontWeight: '700',
-    paddingVertical: 6,
+    fontSize: 20,
+    fontFamily: FONTS.serifSemiBold,
+    paddingVertical: 4,
   },
   divider: {
     height: 1,
@@ -438,24 +500,42 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   contentInput: {
-    fontSize: 14,
-    lineHeight: 22,
+    fontSize: 15,
+    fontFamily: FONTS.serifRegular,
+    lineHeight: 24,
     minHeight: 180,
   },
+  affirmationInputBox: {
+    marginTop: 16,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(0,0,0,0.05)',
+  },
+  affirmationInputLabel: {
+    fontSize: 11,
+    fontFamily: FONTS.sansBold,
+    color: PALETTE.terracotta,
+    marginBottom: 4,
+  },
+  affirmationInput: {
+    fontSize: 18,
+    fontFamily: FONTS.handwriting,
+    paddingVertical: 2,
+  },
   bottomSaveBtn: {
-    backgroundColor: PALETTE.primary,
-    paddingVertical: 12,
-    borderRadius: 16,
+    backgroundColor: PALETTE.botanicalHeader,
+    paddingVertical: 13,
+    borderRadius: 18,
     alignItems: 'center',
     marginTop: 16,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowColor: '#263F36',
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
     elevation: 2,
   },
   bottomSaveBtnText: {
     color: '#FFFFFF',
     fontSize: 13,
-    fontWeight: '700',
+    fontFamily: FONTS.sansBold,
   },
 });

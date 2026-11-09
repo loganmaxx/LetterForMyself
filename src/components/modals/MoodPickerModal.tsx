@@ -12,7 +12,7 @@ import {
 import { X } from 'lucide-react-native';
 import { Language, MoodType } from '../../types';
 import { ALL_EMOTIONS } from '../../constants/emotions';
-import { PALETTE } from '../../constants/theme';
+import { PALETTE, FONTS } from '../../constants/theme';
 import { HapticsService } from '../../services/hapticsService';
 
 interface MoodPickerModalProps {
@@ -147,8 +147,8 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   title: {
-    fontSize: 16,
-    fontWeight: '700',
+    fontSize: 17,
+    fontFamily: FONTS.serifSemiBold,
     color: PALETTE.ink,
   },
   closeBtn: {
@@ -169,13 +169,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#F7F4EE',
     paddingVertical: 10,
     paddingHorizontal: 4,
-    borderRadius: 14,
+    borderRadius: 16,
     marginBottom: 4,
   },
   gridItemActive: {
-    backgroundColor: '#DDE9E2',
+    backgroundColor: '#DCE8E2',
     borderWidth: 1.5,
-    borderColor: PALETTE.primary,
+    borderColor: PALETTE.botanicalHeader,
   },
   gridImg: {
     width: 38,
@@ -184,13 +184,13 @@ const styles = StyleSheet.create({
   },
   gridLabel: {
     fontSize: 9,
-    fontWeight: '600',
+    fontFamily: FONTS.sansMedium,
     color: PALETTE.inkSecondary,
     textAlign: 'center',
   },
   gridLabelActive: {
-    color: PALETTE.primary,
-    fontWeight: '700',
+    color: PALETTE.botanicalHeader,
+    fontFamily: FONTS.sansBold,
   },
   noteSection: {
     marginTop: 16,
@@ -198,7 +198,7 @@ const styles = StyleSheet.create({
   },
   noteLabel: {
     fontSize: 11,
-    fontWeight: '600',
+    fontFamily: FONTS.sansBold,
     color: PALETTE.inkMuted,
     marginBottom: 6,
   },
@@ -206,23 +206,24 @@ const styles = StyleSheet.create({
     backgroundColor: '#FAF5EE',
     borderWidth: 1,
     borderColor: '#EFE7DA',
-    borderRadius: 14,
+    borderRadius: 16,
     padding: 12,
     fontSize: 13,
+    fontFamily: FONTS.sansRegular,
   },
   confirmBtn: {
-    backgroundColor: PALETTE.primary,
+    backgroundColor: PALETTE.botanicalHeader,
     paddingVertical: 14,
-    borderRadius: 16,
+    borderRadius: 18,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowColor: '#263F36',
+    shadowOpacity: 0.25,
+    shadowRadius: 6,
     elevation: 2,
   },
   confirmText: {
     color: '#FFFFFF',
     fontSize: 13,
-    fontWeight: '700',
+    fontFamily: FONTS.sansBold,
   },
 });
